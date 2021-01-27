@@ -1,6 +1,8 @@
 #include<iostream>
-#include<ip_country_detector.hpp>
 #include<arpa/inet.h>
+
+#include<ip_country_detector.hpp>
+#include<target_list_reader.hpp>
 
 std::string setting_ipv4_cvs_path = "./dat/IP2LOCATION-LITE-DB1.CSV";
 std::string setting_ipv6_cvs_path = "./dat/IP2LOCATION-LITE-DB1.IPV6.CSV";
@@ -10,6 +12,8 @@ std::string magnetLinkListPath = "./dat/target_list.txt";
 
 int main(int argc, char* argv[]) {
     ip_country_detector::setupContext(setting_ipv4_cvs_path,setting_ipv6_cvs_path);    
+    target_list_reader::loadTargetListFile(magnetLinkListPath);
+    target_list_reader::showDebugLog();
     return 0;
 }
 

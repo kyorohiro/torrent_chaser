@@ -42,7 +42,7 @@ void loadDataFromCVS(std::string filepath, std::vector<IpAndCountryInfo> &output
 
     while (std::getline(f, l))
     {
-        std::cout << l << std::endl;
+        //std::cout << l << std::endl;
         auto v = createIpAndCountryInfo(l);
         output.push_back(v);
     }
