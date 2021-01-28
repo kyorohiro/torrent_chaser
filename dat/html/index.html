@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <title>Torrent Chaser</title>
+</head>
+
+<body>
+    Hello, World!!
+    <h1> IP to Hostname </h1>
+    <div>
+        <label>IP</label>
+        <input id="input_ip_to_host" type="text">
+        <button id="btn_ip_to_host">Check</button>
+    </div>
+    <script>
+        var api = "http://118.27.105.203:8080/api/get_hostname_from_ip";
+        var ie = document.getElementById("input_ip_to_host");
+        var bt = document.getElementById("btn_ip_to_host");
+
+        function reqListener() {
+            console.log(this.responseText);
+        }
+        bt.addEventListener("click", function () {
+            console.log(">ie.value = " + ie.value);
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("GET", "http://118.27.105.203:8080/api/get_hostname_from_ip");
+            oReq.send(JSON.stringify({"ip":ie.value}));
+        })
+
+
+    </script>
+
+</body>
+
+</html>

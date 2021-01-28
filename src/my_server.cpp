@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <sstream>
-
+#include <iterator>
+//
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
@@ -11,6 +12,7 @@
 #include <boost/archive/iterators/ostream_iterator.hpp>
 #include <boost/algorithm/string.hpp>
 #include <regex>
+#include <nlohmann/json.hpp>
 
 namespace my_server
 {
@@ -51,22 +53,42 @@ namespace my_server
             std::cerr << "my_server_auth err (4)"  << value << std::endl;
             goto AERR;
         }
+        std::cout << username << ":" <<  password << std::endl;
         return true;
     AERR:
         res.set_header("WWW-Authenticate", "Basic realm=\"..\", charset=\"UTF-8\"");
         res.status = 401;
         return false;
     }
+
     void listen(std::string ip, int port, std::string _username, std::string _password) {
         username = _username;
         password = _password;
         //
-        http_server.Get("/hi", [](const httplib::Request &req, httplib::Response &res) {
+        http_server.Get("/", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/" << std::endl;
             if (!handleAuthCheck(req, res))
             {
                 return;
             }
-            res.set_content("Hello World!!", "text/plain");
+            std::fstream input("./dat/html/index.html");
+            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+            
+            res.set_content(source.data(), "text/html");
+            res.status = 200;
+        });
+
+        // todo
+        http_server.Get("/api/get_hostname_from_ip", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/api/get_hostname_from_ip" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            std::string b = req.body;
+            nlohmann::json j = nlohmann::json::parse(b);
+            //j["ip"]
+            res.set_content(j.dump(), "text/json");
             res.status = 200;
         });
         http_server.listen(ip.c_str(), port);
