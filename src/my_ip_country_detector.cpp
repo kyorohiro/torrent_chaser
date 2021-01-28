@@ -4,9 +4,9 @@
 #include <sstream>
 #include <vector>
 #include <arpa/inet.h>
-#include <ip_country_detector.hpp>
+#include <my_ip_country_detector.hpp>
 
-namespace ip_country_detector {
+namespace my_ip_country_detector {
 
 //
 // data format ref https://lite.ip2location.com/database/ip-country

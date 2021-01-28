@@ -12,7 +12,7 @@
 #include <boost/asio/ip/address_v6.hpp>
 
 
-namespace ip_country_detector {
+namespace my_ip_country_detector {
 
  
 struct IpAndCountryInfo

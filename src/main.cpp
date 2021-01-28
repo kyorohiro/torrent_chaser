@@ -1,31 +1,57 @@
 #include<iostream>
 #include<arpa/inet.h>
 
-#include<ip_country_detector.hpp>
-#include<target_list_reader.hpp>
+#include<my_ip_country_detector.hpp>
+#include<my_target_list_reader.hpp>
+#include<my_server.hpp>
 
+//
+#include<sstream>
+//
+//
+//
+
+
+
+//
+//
+//
 std::string setting_ipv4_cvs_path = "./dat/IP2LOCATION-LITE-DB1.CSV";
 std::string setting_ipv6_cvs_path = "./dat/IP2LOCATION-LITE-DB1.IPV6.CSV";
 std::string setting_output_path = "./result";
 
 std::string magnetLinkListPath = "./dat/target_list.txt";
+std::string username = "yamada";
+std::string password = "tarou"
+;
+const std::string html_index =
+  "<head>"
+  ""
+  "</head>"
+  "concatenated into just a single string. "
+  "The disadvantage is that you have to quote "
+  "each part, and newlines must be literal as "
+  "usual.";
+
+
+
 
 int main(int argc, char* argv[]) {
-    ip_country_detector::setupContext(setting_ipv4_cvs_path,setting_ipv6_cvs_path);    
+
+    // load a pair informaton about ip and contry
+    my_ip_country_detector::setupContext(setting_ipv4_cvs_path,setting_ipv6_cvs_path); 
+
+    // load a target metainfo ,torrent and magnetlink
     target_list_reader::loadTargetListFile(magnetLinkListPath);
+
+    // start torrent client
     target_list_reader::showDebugLog();
+
+    // start httpserver
+
+    my_server::listen("0.0.0.0", 8080, username, password);
+
     return 0;
 }
 
-int compare_ipv6(struct in6_addr *ipA, struct in6_addr *ipB)
-{
-    int i = 0;
-    for(i = 0; i < 16; ++i) // Don't use magic number, here just for example
-    {
-        if (ipA->s6_addr[i] < ipB->s6_addr[i])
-            return -1;
-        else if (ipA->s6_addr[i] > ipB->s6_addr[i])
-            return 1;
-    }
-    return 0;
-}
+
