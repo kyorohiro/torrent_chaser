@@ -5,7 +5,7 @@
 #include <vector>
 #include <arpa/inet.h>
 #include <my_ip_country_detector.hpp>
-
+#include <boost/asio/ip/address_v6.hpp>
 namespace my_ip_country_detector {
 
 //
@@ -25,6 +25,12 @@ IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::
 
 void setupContext(std::string filepathV4, std::string filepathV6){
     loadDataFromCVS(filepathV6, contextV6);
+}
+
+std::string findCountryFromIPv4(std::string ip) {
+    boost::asio::ip::address_v4 i = boost::asio::ip::address_v4::from_string(ip.c_str());
+    std::cout << boost::multiprecision::uint128_t(i.to_string()) << std::endl;
+    return findCountryFromIPv4(boost::multiprecision::uint128_t(i.to_string()));
 }
 
 std::string findCountryFromIPv4(boost::multiprecision::uint128_t ip) {

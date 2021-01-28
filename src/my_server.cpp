@@ -14,6 +14,9 @@
 #include <regex>
 #include <nlohmann/json.hpp>
 
+//
+//
+#include<my_ip_country_detector.hpp>
 namespace my_server
 {
     std::string password;
@@ -79,16 +82,29 @@ namespace my_server
         });
 
         // todo
-        http_server.Get("/api/get_hostname_from_ip", [](const httplib::Request &req, httplib::Response &res) {
+        http_server.Post("/api/get_hostname_from_ip", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/get_hostname_from_ip" << std::endl;
             if (!handleAuthCheck(req, res))
             {
+                std::cout << "--" << std::endl;
                 return;
             }
+             std::cout << "-1" << std::endl;
             std::string b = req.body;
-            nlohmann::json j = nlohmann::json::parse(b);
+             std::cout << "-2" << std::endl;
+
+             std::cout << b << std::endl;
+             std::cout << "3-1" << std::endl;
+
+            nlohmann::json inp= nlohmann::json::parse(b);
+             std::cout << "-+" << std::endl;
             //j["ip"]
-            res.set_content(j.dump(), "text/json");
+            nlohmann::json o;
+             std::cout << inp["ip"] << std::endl;
+            o["country"] = "JA";// my_ip_country_detector::findCountryFromIPv4("8.8.8.8");//inp["ip"]);
+            std::cout << inp["ip"] << std::endl;
+            std::cout << o["country"] << std::endl;
+            //res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
         http_server.listen(ip.c_str(), port);

@@ -24,7 +24,8 @@
             console.log(">ie.value = " + ie.value);
             var oReq = new XMLHttpRequest();
             oReq.addEventListener("load", reqListener);
-            oReq.open("GET", "http://118.27.105.203:8080/api/get_hostname_from_ip");
+            //oReq.setRequestHeader('Content-Type', 'application/json');
+            oReq.open("POST", "http://118.27.105.203:8080/api/get_hostname_from_ip");
             oReq.send(JSON.stringify({"ip":ie.value}));
         })
 
