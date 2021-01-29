@@ -24,13 +24,17 @@ void loadDataFromCVS(std::string filepath, std::vector<IpAndCountryInfo> &output
 IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::uint128_t ip);
 
 void setupContext(std::string filepathV4, std::string filepathV6){
+    loadDataFromCVS(filepathV4, contextV4);
     loadDataFromCVS(filepathV6, contextV6);
 }
 
 std::string findCountryFromIPv4(std::string ip) {
+    std::cout << "(9) <<" << ip << std::endl;
     boost::asio::ip::address_v4 i = boost::asio::ip::address_v4::from_string(ip.c_str());
-    std::cout << boost::multiprecision::uint128_t(i.to_string()) << std::endl;
-    return findCountryFromIPv4(boost::multiprecision::uint128_t(i.to_string()));
+    std::cout << "(9) <<" << i.to_ulong()<< std::endl;
+ 
+    std::cout << boost::multiprecision::uint128_t(i.to_ulong()) << std::endl;
+    return findCountryFromIPv4(boost::multiprecision::uint128_t(i.to_ulong()));
 }
 
 std::string findCountryFromIPv4(boost::multiprecision::uint128_t ip) {
@@ -38,7 +42,7 @@ std::string findCountryFromIPv4(boost::multiprecision::uint128_t ip) {
 }
 
 std::string findCountryFromIPv6(boost::multiprecision::uint128_t ip) {
-    return find(contextV4, ip).country_name;
+    return find(contextV6, ip).country_name;
 }
 
 void loadDataFromCVS(std::string filepath, std::vector<IpAndCountryInfo> &output)
@@ -75,7 +79,7 @@ IpAndCountryInfo createIpAndCountryInfo(std::string line) {
         {
             end_src = end_src.substr(1, end_src.length() - 2);
         }
-        ret.begin = boost::multiprecision::uint128_t(begin_src);
+        ret.end= boost::multiprecision::uint128_t(end_src);
 
         return ret;
     }
@@ -84,7 +88,8 @@ IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::
 {
     int min = 0;
     int max = ips.size() - 1;
-
+    std::cout << "(19) <<" << ip <<"m:"<<min << "s:"<< max << std::endl;
+    std::cout << "::" << ips[min].end<< std::endl;
     if (ips[min].begin <= ip && ip <= ips[min].end)
     {
         return ips[min];
@@ -102,6 +107,7 @@ IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::
         IpAndCountryInfo i = ips[index];
         if (i.begin <= ip && ip <= i.end)
         {
+            std::cout << ":f:" << i.country_name<< "::"  << std::endl;
             return i;
         }
         if (ip < i.begin)
@@ -112,7 +118,7 @@ IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::
         {
             min = index;
         }
-        //std::cout << "::" << index<< "::"  << std::endl;
+        std::cout << "::" << index<< "::"<<  i.begin << "<" <<ip << "<"<<i.end << "::"<< std::endl;
     } while (prev_index != index);
 
     //for(ipinfo i : ips) {
