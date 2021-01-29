@@ -8,24 +8,26 @@
     Hello, World!!
     <h1> IP to Hostname </h1>
     <div>
-        <label>IP</label>
-        <input id="input_ip_to_host" type="text">
+        <label>IP to Country</label>
+        <input id="input_ip_to_host" type="text"><span id="btn_ip_to_output"></span>
         <button id="btn_ip_to_host">Check</button>
     </div>
     <script>
-        var api = "http://118.27.105.203:8080/api/get_hostname_from_ip";
         var ie = document.getElementById("input_ip_to_host");
         var bt = document.getElementById("btn_ip_to_host");
+        var ot = document.getElementById("btn_ip_to_output");
 
         function reqListener() {
-            console.log(this.responseText);
+            var ret = JSON.parse(this.responseText);
+            console.log("COUNTRY " + ret["country"]);
+            ot.innerText = ret["country"];
         }
         bt.addEventListener("click", function () {
             console.log(">ie.value = " + ie.value);
             var oReq = new XMLHttpRequest();
             oReq.addEventListener("load", reqListener);
             //oReq.setRequestHeader('Content-Type', 'application/json');
-            oReq.open("POST", "http://118.27.105.203:8080/api/get_hostname_from_ip");
+            oReq.open("POST", "api/get_hostname_from_ip");
             oReq.send(JSON.stringify({"ip":ie.value}));
         })
 
