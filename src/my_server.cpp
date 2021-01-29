@@ -104,7 +104,7 @@ namespace my_server
             o["country"] = my_ip_country_detector::findCountryFromIPv4(inp["ip"].get<std::string>());
             std::cout << inp["ip"] << std::endl;
             std::cout << o["country"] << std::endl;
-            //res.set_content(o.dump(), "text/json");
+            res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
         http_server.listen(ip.c_str(), port);

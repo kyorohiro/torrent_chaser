@@ -68,7 +68,10 @@ IpAndCountryInfo createIpAndCountryInfo(std::string line) {
         std::getline(ss, begin_src, ',');
         std::getline(ss, end_src, ',');
         std::getline(ss, ret.country_name, ',');
-
+        if (ret.country_name.length() > 0 && ret.country_name[0] == '"')
+        {
+            ret.country_name = ret.country_name.substr(1, ret.country_name.length() - 2);
+        }
         if (begin_src.length() > 0 && begin_src[0] == '"')
         {
             begin_src = begin_src.substr(1, begin_src.length() - 2);
