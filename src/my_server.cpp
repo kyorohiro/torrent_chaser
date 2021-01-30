@@ -81,7 +81,7 @@ namespace my_server
             std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
             res.set_content(source.data(), "text/html");
             res.status = 200;
-            input.close();
+            std::cout << source.data() << std::endl;
         });
         http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/" << std::endl;
@@ -91,10 +91,8 @@ namespace my_server
             }
             std::fstream input("./dat/html/magnetlink.html");
             std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-
             res.set_content(source.data(), "text/html");
             res.status = 200;
-            input.close();
         });
 
         http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
@@ -108,7 +106,6 @@ namespace my_server
 
             res.set_content(source.data(), "text/html");
             res.status = 200;
-            input.close();
         });
         // ip info api
         //
