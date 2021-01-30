@@ -9,9 +9,14 @@
     <h1> add magnetlink </h1>
     <div>
         <label>Input magnetlink</label>
-        <input id="input_add_torrent" type="text">
-        <button id="btn_add_torrent">Add</button>
-
+        <div>
+            <input id="input_add_torrent" type="text">
+            <button id="btn_add_torrent">Add</button>
+        </div>
+        <div>
+            <input id="input_remove_torrent" type="number">
+            <button id="btn_remove_torrent">Remove</button>
+        </div>
         <ul id="output_add_torrent"></ul>
 
     </div>
@@ -19,11 +24,12 @@
         {
             let ie = document.getElementById("input_add_torrent");
             let bt = document.getElementById("btn_add_torrent");
-
+            let ir = document.getElementById("input_remove_torrent");
+            let br = document.getElementById("btn_remove_torrent");
+            
             function reqListener() {
                 var ret = JSON.parse(this.responseText);
-                console.log("COUNTRY " + ret["country"]);
-                ot.innerText = ret["country"] + ", " + ret["domain"];
+                console.log(ret);
             }
             bt.addEventListener("click", function () {
                 console.log(">if.value = " + ie.value);
@@ -31,6 +37,17 @@
                 oReq.addEventListener("load", reqListener);
                 oReq.open("POST", "/api/magnetlink/add");
                 oReq.send(JSON.stringify({ "magnetlink": ie.value }));
+            })
+            function reqListenerRemove() {
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+            }
+            br.addEventListener("click",function(){
+                console.log(">if.value = " + ie.value);
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListenerRemove);
+                oReq.open("POST", "/api/magnetlink/remove");
+                oReq.send(JSON.stringify({ "id": parseInt(ir.value, 10) }));
             })
         }
         {
@@ -40,7 +57,7 @@
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
                 for (i = 0; i < ret["list"].length; i++) {
-                    ot.insertAdjacentHTML("beforeend","<li>[ "+ ret["list"][i]["id"]+"]:"+ret["list"][i]["target"]+"</li>");
+                    ot.insertAdjacentHTML("beforeend", "<li>[ " + ret["list"][i]["id"] + "]:" + ret["list"][i]["target"] + "</li>");
                 }
             }
             var oReq = new XMLHttpRequest();

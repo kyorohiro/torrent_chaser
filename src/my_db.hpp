@@ -12,4 +12,5 @@ namespace my_db {
     void setupDB(std::string dbpath);
     void insertMagnetlink(std::string magnetlink);
     void getMagnetLink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
+    void removeMagnetlink(int id);
 }

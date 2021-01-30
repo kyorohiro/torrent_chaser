@@ -70,7 +70,8 @@ namespace my_db
     void insertMagnetlink(std::string magnetlink)
     {
         std::stringstream ss;
-        ss << "INSERT INTO TARGET_INFO(TARGET) VALUES ("<<"'"<<magnetlink<<"');";
+        ss << "INSERT INTO TARGET_INFO(TARGET) VALUES ("
+           << "'" << magnetlink << "');";
 
         std::string sql = ss.str();
         char *zErrMsg = 0;
@@ -81,32 +82,52 @@ namespace my_db
         }
     }
 
+    void removeMagnetlink(int id)
+    {
+        std::stringstream ss;
+        ss << "DELETE  FROM TARGET_INFO WHERE id = " << id << ";";
+
+        std::string sql = ss.str();
+        std::cout << ">>"<< sql << std::endl;
+        char *zErrMsg = 0;
+        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+        if (rc != SQLITE_OK)
+        {
+            std::cout << sqlite3_errmsg(db) << std::endl;
+            throw std::runtime_error(std::string(sqlite3_errmsg(db)));
+        }
+    }
+
     int callbackGetMagnetLink(void *context, int argc, char **argv, char **azColName)
     {
         int i;
-        std::vector<std::shared_ptr<TargetInfo>> *targetInfos =(std::vector<std::shared_ptr<TargetInfo>>*) context;
+        std::vector<std::shared_ptr<TargetInfo>> *targetInfos = (std::vector<std::shared_ptr<TargetInfo>> *)context;
         //std::cout << "callback" << *((std::string*)NotUsed)<<std::endl;
 
- std::cout << "-------------1z" << std::endl;
+        std::cout << "-------------1z" << std::endl;
         auto info = std::make_shared<TargetInfo>();
         for (i = 0; i < argc; i++)
         {
             printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-            if(std::string(azColName[i]) == "ID") {
-                info->id = (argv[i] == NULL? -1: std::stoi(argv[i]));
+            if (std::string(azColName[i]) == "ID")
+            {
+                info->id = (argv[i] == NULL ? -1 : std::stoi(argv[i]));
             }
-            if(std::string(azColName[i]) == "TARGET") {
-                info->target = (argv[i] == NULL? "": std::string(argv[i]));
+            if (std::string(azColName[i]) == "TARGET")
+            {
+                info->target = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
-            else if(std::string(azColName[i]) == "INFOHASH") {
-                info->infohash = (argv[i] == NULL? "": std::string(argv[i]));
+            else if (std::string(azColName[i]) == "INFOHASH")
+            {
+                info->infohash = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
-            else if(std::string(azColName[i]) == "NAME") {
-                info->name = (argv[i] == NULL? "": std::string(argv[i]));
+            else if (std::string(azColName[i]) == "NAME")
+            {
+                info->name = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
         }
         targetInfos->push_back(info);
-         std::cout << "-------------2z" << std::endl;
+        std::cout << "-------------2z" << std::endl;
         printf("\n");
         return 0;
     }
@@ -114,14 +135,14 @@ namespace my_db
     {
         std::string sql = "SELECT * FROM TARGET_INFO;";
         char *zErrMsg = 0;
-std::cout << "-------------3a" << std::endl;
+        std::cout << "-------------3a" << std::endl;
         int rc = sqlite3_exec(db, sql.c_str(), callbackGetMagnetLink, &targetInfos, &zErrMsg);
         if (rc != SQLITE_OK)
         {
-             std::cout << "-------------3b" << std::endl;
+            std::cout << "-------------3b" << std::endl;
 
             throw std::runtime_error(std::string(sqlite3_errmsg(db)));
         }
-         std::cout << "-------------3c" << std::endl;
+        std::cout << "-------------3c" << std::endl;
     }
 } // namespace my_db
