@@ -6,8 +6,8 @@
 #include<vector>
 namespace my_torrent {
       std::string make_magnet_link(std::vector<char> binary);
-      void setup();
-
+      void setup(std::string bind_address, int upload_max, int download_max);
+      void listen();
 }
 
 #endif

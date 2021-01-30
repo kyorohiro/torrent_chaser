@@ -5,10 +5,11 @@
 #include <my_target_list_reader.hpp>
 #include <my_server.hpp>
 #include <my_db.hpp>
+#include <my_torrent.hpp>
 //
 #include <sstream>
 #include <thread>
- 
+#include <my_config.h>
 
 //
 //
@@ -18,8 +19,7 @@ std::string setting_ipv6_cvs_path = "./dat/ip2country/IP2LOCATION-LITE-DB1.IPV6.
 std::string setting_output_path = "./result";
 
 std::string magnetLinkListPath = "./dat/target_list.txt";
-std::string username = "yamada";
-std::string password = "tarou";
+
 
 void start_http_server_on_thread(int unused)
 {
@@ -49,6 +49,10 @@ int main(int argc, char *argv[])
     //
     //
     std::string input;
+    // setup(std::string bind_address, int upload_max, int download_max)
+    my_torrent::setup("", -1, -1);
+    my_torrent::listen();
+    /*
     while (1)
     {
         std::getline(std::cin, input);
@@ -58,6 +62,6 @@ int main(int argc, char *argv[])
             //std::cin.clear(); // reset cin state
             break;
         }
-    }
+    }*/
     return 0;
 }

@@ -5,11 +5,11 @@
 #include <iostream>
 
 //
-#include<libtorrent/session.hpp>
-#include<libtorrent/alert_types.hpp>
-#include<libtorrent/alert.hpp>
-#include<libtorrent/magnet_uri.hpp>
-#include<libtorrent/error_code.hpp>
+#include <libtorrent/session.hpp>
+#include <libtorrent/alert_types.hpp>
+#include <libtorrent/alert.hpp>
+#include <libtorrent/magnet_uri.hpp>
+#include <libtorrent/error_code.hpp>
 
 namespace my_torrent
 {
@@ -34,7 +34,8 @@ namespace my_torrent
     // if upload_max is -1 mean unset upload max
     // if download_max is -1 mean unset download max
     //
-    void setup(std::string bind_address, int upload_max, int download_max) {
+    void setup(std::string bind_address, int upload_max, int download_max)
+    {
         //
         // create session
         //
@@ -48,25 +49,67 @@ namespace my_torrent
         //session_params.set_bool(lt::settings_pack::enable_dht, false);
         _session = std::make_shared<lt::session>(session_params);
 
-        //      
+        //
     }
 
-    void add_magnetlink(std::string magnetlink) {
+    void add_magnetlink(std::string magnetlink)
+    {
         lt::add_torrent_params torrent_params;
         torrent_params.save_path = ".data"; // save in this dir
         lt::error_code ec;
-		lt::parse_magnet_uri(magnetlink,torrent_params, ec);
-		if (ec){
-            std::cerr << "wrong magnet link "  << magnetlink << std::endl;
-            throw std::invalid_argument("wrong magnet link \""+ magnetlink+"\"");
+        lt::parse_magnet_uri(magnetlink, torrent_params, ec);
+        if (ec)
+        {
+            std::cerr << "wrong magnet link " << magnetlink << std::endl;
+            throw std::invalid_argument("wrong magnet link \"" + magnetlink + "\"");
         }
         //torrent_params = lt::parse_magnet_uri(m);
         lt::torrent_handle h = _session->add_torrent(torrent_params);
-        if(_upload_max >= 0 ) {
+        if (_upload_max >= 0)
+        {
             h.set_upload_limit(_upload_max);
         }
-        if(_download_max >= 0) {
+        if (_download_max >= 0)
+        {
             h.set_download_limit(_download_max);
+        }
+    }
+
+    void listen()
+    {
+        while (true)
+        {
+            std::vector<lt::alert *> alerts;
+            _session->pop_alerts(&alerts);
+
+            lt::state_update_alert *st;
+            for (lt::alert *a : alerts)
+            {
+                std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
+                switch (a->type())
+                {
+                case lt::state_update_alert::alert_type:
+                    //lt::state_update_alert
+                    st = (lt::state_update_alert *)(a);
+                    {
+                        lt::torrent_status const &s = st->status[0];
+                        std::cout << '\r' //<< lt::state(s.state) << ' '
+                                  << (s.download_payload_rate / 1000) << " kB/s "
+                                  << (s.total_done / 1000) << " kB ("
+                                  << (s.progress_ppm / 10000) << "%) downloaded ("
+                                  << s.num_peers << " peers)\x1b[K";
+                        std::cout.flush();
+                    }
+                    break;
+                case lt::torrent_finished_alert::alert_type:
+                    std::cout << ">> finished : ==" << std::endl;
+                    //goto END;
+                case lt::torrent_error_alert::alert_type:
+                    std::cout << ">> error : ==" << std::endl;
+                    //goto END;
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     }
 } // namespace my_torrent
