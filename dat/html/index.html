@@ -20,24 +20,17 @@
         function reqListener() {
             var ret = JSON.parse(this.responseText);
             console.log("COUNTRY " + ret["country"]);
-            ot.innerText = ret["country"];
+            ot.innerText = ret["country"] + ", " + ret["domain"];;
         }
         bt.addEventListener("click", function () {
             console.log(">ie.value = " + ie.value);
             var oReq = new XMLHttpRequest();
             oReq.addEventListener("load", reqListener);
             //oReq.setRequestHeader('Content-Type', 'application/json');
-            oReq.open("POST", "api/get_hostname_from_ip");
+            oReq.open("POST", "api/get_info_from_ip");
             oReq.send(JSON.stringify({ "ip": ie.value }));
         })
     </script>
-
-    <h1> IP to DOMAIN </h1>
-    <div>
-        <label>IP to Country</label>
-        <input id="input_ip_to_host" type="text"><span id="btn_ip_to_output"></span>
-        <button id="btn_ip_to_host">Check</button>
-    </div>
 </body>
 
 </html>

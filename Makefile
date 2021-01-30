@@ -27,7 +27,7 @@ test_my_ip_country_detector.out: ./src/test_my_ip_country_detector.cpp ./src/my_
 
 
 
-all: clean $(OBJS) $(TARGET) $(TEST_TARGET)
+all: $(OBJS) $(TARGET) $(TEST_TARGET)
 
 clean:
 	rm -f ./src/*.o ./*.out

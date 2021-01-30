@@ -82,8 +82,8 @@ namespace my_server
         });
 
         // todo
-        http_server.Post("/api/get_hostname_from_ip", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/api/get_hostname_from_ip" << std::endl;
+        http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/api/get_info_from_ip" << std::endl;
             if (!handleAuthCheck(req, res))
             {
                 std::cout << "--" << std::endl;
@@ -102,6 +102,7 @@ namespace my_server
             nlohmann::json o;
              std::cout << inp["ip"] << std::endl;
             o["country"] = my_ip_country_detector::findCountryFromIP(inp["ip"].get<std::string>());
+            o["domain"] = my_ip_country_detector::findDnsFromIP(inp["ip"].get<std::string>());
             std::cout << inp["ip"] << std::endl;
             std::cout << o["country"] << std::endl;
             res.set_content(o.dump(), "text/json");
