@@ -7,32 +7,18 @@
 #include<my_db.hpp>
 //
 #include<sstream>
-//
-//
-//
-
 
 
 //
 //
 //
-std::string setting_ipv4_cvs_path = "./dat/IP2LOCATION-LITE-DB1.CSV";
-std::string setting_ipv6_cvs_path = "./dat/IP2LOCATION-LITE-DB1.IPV6.CSV";
+std::string setting_ipv4_cvs_path = "./dat/ip2country/IP2LOCATION-LITE-DB1.CSV";
+std::string setting_ipv6_cvs_path = "./dat/ip2country/IP2LOCATION-LITE-DB1.IPV6.CSV";
 std::string setting_output_path = "./result";
 
 std::string magnetLinkListPath = "./dat/target_list.txt";
 std::string username = "yamada";
-std::string password = "tarou"
-;
-const std::string html_index =
-  "<head>"
-  ""
-  "</head>"
-  "concatenated into just a single string. "
-  "The disadvantage is that you have to quote "
-  "each part, and newlines must be literal as "
-  "usual.";
-
+std::string password = "tarou";
 
 
 
