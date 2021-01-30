@@ -1,13 +1,14 @@
-#include<iostream>
-#include<arpa/inet.h>
+#include <iostream>
+#include <arpa/inet.h>
 
-#include<my_ip_country_detector.hpp>
-#include<my_target_list_reader.hpp>
-#include<my_server.hpp>
-#include<my_db.hpp>
+#include <my_ip_country_detector.hpp>
+#include <my_target_list_reader.hpp>
+#include <my_server.hpp>
+#include <my_db.hpp>
 //
-#include<sstream>
-
+#include <sstream>
+#include <thread>
+ 
 
 //
 //
@@ -20,12 +21,17 @@ std::string magnetLinkListPath = "./dat/target_list.txt";
 std::string username = "yamada";
 std::string password = "tarou";
 
+void start_http_server_on_thread(int unused)
+{
+    my_server::listen("0.0.0.0", 8080, username, password);
+}
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
 
     // load a pair informaton about ip and contry
-    my_ip_country_detector::setupContext(setting_ipv4_cvs_path,setting_ipv6_cvs_path); 
+    my_ip_country_detector::setupContext(setting_ipv4_cvs_path, setting_ipv6_cvs_path);
 
     // load a target metainfo ,torrent and magnetlink
     target_list_reader::loadTargetListFile(magnetLinkListPath);
@@ -37,9 +43,21 @@ int main(int argc, char* argv[]) {
     my_db::setupDB(".app.db");
 
     // start httpserver
-    my_server::listen("0.0.0.0", 8080, username, password);
+    
+    std::thread server_thread(start_http_server_on_thread, 3);//NULL);
 
+    //
+    //
+    std::string input;
+    while (1)
+    {
+        std::getline(std::cin, input);
+        std::cout << "[p]: " <<input << std::endl;
+        if (std::cin.eof())
+        {
+            //std::cin.clear(); // reset cin state
+            break;
+        }
+    }
     return 0;
 }
-
-
