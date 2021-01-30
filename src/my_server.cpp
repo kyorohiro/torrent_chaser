@@ -19,6 +19,7 @@
 //
 #include <my_ip_country_detector.hpp>
 #include <my_db.hpp>
+#include <my_torrent.hpp>
 namespace my_server
 {
     std::string password;
@@ -83,6 +84,20 @@ namespace my_server
             res.status = 200;
             std::cout << source.data() << std::endl;
         });
+        
+
+        http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            std::fstream input("./dat/html/create_magnetlink.html");
+            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+            res.set_content(source.data(), "text/html");
+            res.status = 200;
+        });
+
         http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/" << std::endl;
             if (!handleAuthCheck(req, res))
@@ -150,6 +165,21 @@ namespace my_server
          std::cout << inp.dump()<< std::endl;
             nlohmann::json o;
             my_db::removeMagnetlink(inp["id"].get<int>());
+            res.set_content(o.dump(), "text/json");
+            res.status = 200;
+        });
+
+        http_server.Post("/api/magnetlink/create", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "call /api/magnetlink/create" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            const char * buffer = req.body.c_str();
+            std::vector<char> xx(buffer, buffer+req.body.length());
+            std::string link = my_torrent::make_magnet_link(xx);
+            nlohmann::json o;
+            o["magnetlink"] = link;
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
