@@ -27,6 +27,8 @@ void setupContext(std::string filepathV4, std::string filepathV6);
 std::string findCountryFromIPv4(boost::multiprecision::uint128_t ip);
 std::string findCountryFromIPv6(boost::multiprecision::uint128_t ip);
 std::string findCountryFromIPv4(std::string ip);
+std::string findCountryFromIPv6(std::string ip);
+std::string findCountryFromIP(std::string ip);
 }
 
 

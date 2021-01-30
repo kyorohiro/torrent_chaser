@@ -101,7 +101,7 @@ namespace my_server
             //j["ip"]
             nlohmann::json o;
              std::cout << inp["ip"] << std::endl;
-            o["country"] = my_ip_country_detector::findCountryFromIPv4(inp["ip"].get<std::string>());
+            o["country"] = my_ip_country_detector::findCountryFromIP(inp["ip"].get<std::string>());
             std::cout << inp["ip"] << std::endl;
             std::cout << o["country"] << std::endl;
             res.set_content(o.dump(), "text/json");

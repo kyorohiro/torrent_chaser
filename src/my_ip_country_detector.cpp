@@ -6,6 +6,9 @@
 #include <arpa/inet.h>
 #include <my_ip_country_detector.hpp>
 #include <boost/asio/ip/address_v6.hpp>
+#include <regex>
+#include <boost/asio/ip/address.hpp>
+
 namespace my_ip_country_detector {
 
 //
@@ -28,6 +31,25 @@ void setupContext(std::string filepathV4, std::string filepathV6){
     loadDataFromCVS(filepathV6, contextV6);
 }
 
+std::string findCountryFromIP(std::string ip) {
+    boost::asio::ip::address a(boost::asio::ip::address::from_string( ip ));
+   
+    if(a.is_v4()) {
+        return findCountryFromIPv4(ip);         
+    } else {
+        return findCountryFromIPv6(ip); 
+    }
+}
+
+
+std::string findCountryFromIPv6(std::string ip) {
+    boost::asio::ip::address_v6 v6 = boost::asio::ip::address_v6::from_string(ip);
+    boost::multiprecision::uint128_t val{};
+    for (uint8_t b : v6.to_bytes()) {
+        (val <<= 8) |= b;
+    }
+    return findCountryFromIPv6(val);
+}
 std::string findCountryFromIPv4(std::string ip) {
     std::cout << "(9) <<" << ip << std::endl;
     boost::asio::ip::address_v4 i = boost::asio::ip::address_v4::from_string(ip.c_str());
