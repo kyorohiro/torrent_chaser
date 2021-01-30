@@ -1,3 +1,5 @@
+
+
 <html>
 
 <head>
@@ -5,32 +7,8 @@
 </head>
 
 <body>
-    Hello, World!!
-    <h1> IP to Hostname </h1>
-    <div>
-        <label>Input IP</label>
-        <input id="input_ip_to_host" type="text"><span id="btn_ip_to_output"></span>
-        <button id="btn_ip_to_host">Check</button>
-    </div>
-    <script>
-        var ie = document.getElementById("input_ip_to_host");
-        var bt = document.getElementById("btn_ip_to_host");
-        var ot = document.getElementById("btn_ip_to_output");
-
-        function reqListener() {
-            var ret = JSON.parse(this.responseText);
-            console.log("COUNTRY " + ret["country"]);
-            ot.innerText = ret["country"] + ", " + ret["domain"];;
-        }
-        bt.addEventListener("click", function () {
-            console.log(">ie.value = " + ie.value);
-            var oReq = new XMLHttpRequest();
-            oReq.addEventListener("load", reqListener);
-            //oReq.setRequestHeader('Content-Type', 'application/json');
-            oReq.open("POST", "api/get_info_from_ip");
-            oReq.send(JSON.stringify({ "ip": ie.value }));
-        })
-    </script>
+    <a href="/ip_check">Check iP</a><br>
+    <a href="/magnetlink">Add Torrentfile</a><br>
 </body>
 
 </html>

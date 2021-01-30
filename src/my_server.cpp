@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <iterator>
+#include <exception>
 //
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/binary_from_base64.hpp>
@@ -16,7 +17,8 @@
 
 //
 //
-#include<my_ip_country_detector.hpp>
+#include <my_ip_country_detector.hpp>
+#include <my_db.hpp>
 namespace my_server
 {
     std::string password;
@@ -48,15 +50,15 @@ namespace my_server
         std::regex_match(value, m, reB);
         if (m.size() < 2)
         {
-            std::cerr << "my_server_auth err (3)"  << value << std::endl;
+            std::cerr << "my_server_auth err (3)" << value << std::endl;
             goto AERR;
         }
         if (m[1] != username || m[2] != password)
         {
-            std::cerr << "my_server_auth err (4)"  << value << std::endl;
+            std::cerr << "my_server_auth err (4)" << value << std::endl;
             goto AERR;
         }
-        std::cout << username << ":" <<  password << std::endl;
+        std::cout << username << ":" << password << std::endl;
         return true;
     AERR:
         res.set_header("WWW-Authenticate", "Basic realm=\"..\", charset=\"UTF-8\"");
@@ -64,7 +66,8 @@ namespace my_server
         return false;
     }
 
-    void listen(std::string ip, int port, std::string _username, std::string _password) {
+    void listen(std::string ip, int port, std::string _username, std::string _password)
+    {
         username = _username;
         password = _password;
         //
@@ -76,37 +79,110 @@ namespace my_server
             }
             std::fstream input("./dat/html/index.html");
             std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-            
             res.set_content(source.data(), "text/html");
             res.status = 200;
+            input.close();
+        });
+        http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            std::fstream input("./dat/html/magnetlink.html");
+            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+            res.set_content(source.data(), "text/html");
+            res.status = 200;
+            input.close();
         });
 
-        // todo
+        http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            std::fstream input("./dat/html/ip_check.html");
+            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+            res.set_content(source.data(), "text/html");
+            res.status = 200;
+            input.close();
+        });
+        // ip info api
+        //
         http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/get_info_from_ip" << std::endl;
             if (!handleAuthCheck(req, res))
             {
-                std::cout << "--" << std::endl;
                 return;
             }
-             std::cout << "-1" << std::endl;
             std::string b = req.body;
-             std::cout << "-2" << std::endl;
-
-             std::cout << b << std::endl;
-             std::cout << "3-1" << std::endl;
-
-            nlohmann::json inp= nlohmann::json::parse(b);
-             std::cout << "-+" << std::endl;
-            //j["ip"]
+            nlohmann::json inp = nlohmann::json::parse(b);
             nlohmann::json o;
-             std::cout << inp["ip"] << std::endl;
             o["country"] = my_ip_country_detector::findCountryFromIP(inp["ip"].get<std::string>());
             o["domain"] = my_ip_country_detector::findDnsFromIP(inp["ip"].get<std::string>());
-            std::cout << inp["ip"] << std::endl;
-            std::cout << o["country"] << std::endl;
             res.set_content(o.dump(), "text/json");
             res.status = 200;
+        });
+
+        // regist magnetlink api
+        http_server.Post("/api/magnetlink/add", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/api/add_magnet_link" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            std::string b = req.body;
+            nlohmann::json inp = nlohmann::json::parse(b);
+            nlohmann::json o;
+            my_db::insertMagnetlink(inp["magnetlink"].get<std::string>());
+            res.set_content(o.dump(), "text/json");
+            res.status = 200;
+        });
+
+        // regist magnetlink api
+        http_server.Post("/api/magnetlink/list", [](const httplib::Request &req, httplib::Response &res) {
+            //std::cout << "p:/api/add_magnet_link" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            try
+            {
+                std::vector<std::shared_ptr<my_db::TargetInfo>> targetInfos;
+                std::cout << "-------------1" << std::endl;
+
+                my_db::getMagnetLink(targetInfos);
+                //std::string b = req.body;
+                //nlohmann::json inp = nlohmann::json::parse(b);
+                nlohmann::json o;
+                std::cout << "-------------1-1" << std::endl;
+
+                o["list"] = nlohmann::json::array();
+                std::cout << "-------------2" << std::endl;
+
+                for (auto i : targetInfos)
+                {
+                    o["list"].push_back({
+                        {"id", i->id},
+                        {"infohash", i->infohash},
+                        {"name", i->name},
+                        {"target", i->target},
+                    });
+                }
+                std::cout << "-------------3" << std::endl;
+                res.set_content(o.dump(), "text/json");
+                res.status = 200;
+            }
+            catch (std::exception e)
+            {
+                std::cout << e.what() << std::endl;
+            }
+            //my_db::insertMagnetlink(inp["magnetlink"].get<std::string>());
+
+
         });
         http_server.listen(ip.c_str(), port);
     }

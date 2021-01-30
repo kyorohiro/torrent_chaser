@@ -1,0 +1,56 @@
+<html>
+
+<head>
+    <title>Torrent Chaser</title>
+</head>
+
+<body>
+
+    <h1> add magnetlink </h1>
+    <div>
+        <label>Input magnetlink</label>
+        <input id="input_add_torrent" type="text">
+        <button id="btn_add_torrent">Add</button>
+
+        <ul id="output_add_torrent"></ul>
+
+    </div>
+    <script>
+        {
+            let ie = document.getElementById("input_add_torrent");
+            let bt = document.getElementById("btn_add_torrent");
+
+            function reqListener() {
+                var ret = JSON.parse(this.responseText);
+                console.log("COUNTRY " + ret["country"]);
+                ot.innerText = ret["country"] + ", " + ret["domain"];
+            }
+            bt.addEventListener("click", function () {
+                console.log(">if.value = " + ie.value);
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                oReq.open("POST", "/api/magnetlink/add");
+                oReq.send(JSON.stringify({ "magnetlink": ie.value }));
+            })
+        }
+        {
+            let ot = document.getElementById("output_add_torrent");
+
+            function reqListener() {
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+                for (i = 0; i < ret["list"].length; i++) {
+                    ot.insertAdjacentHTML("beforeend","<li>[ "+ ret["list"][i]["id"]+"]:"+ret["list"][i]["target"]+"</li>");
+                }
+            }
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("POST", "/api/magnetlink/list");
+            oReq.send();
+        }
+    </script>
+
+
+</body>
+
+</html>

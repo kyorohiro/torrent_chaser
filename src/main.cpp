@@ -4,7 +4,7 @@
 #include<my_ip_country_detector.hpp>
 #include<my_target_list_reader.hpp>
 #include<my_server.hpp>
-
+#include<my_db.hpp>
 //
 #include<sstream>
 //
@@ -47,8 +47,10 @@ int main(int argc, char* argv[]) {
     // start torrent client
     target_list_reader::showDebugLog();
 
-    // start httpserver
+    // setup table
+    my_db::setupDB(".app.db");
 
+    // start httpserver
     my_server::listen("0.0.0.0", 8080, username, password);
 
     return 0;

@@ -2,3 +2,4 @@
 *.out
 hello_libtorrent
 libtorrent
+.app.db
