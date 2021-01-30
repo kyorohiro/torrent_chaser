@@ -1,3 +1,6 @@
+#ifndef _MY_DB
+#define _MY_DB
+
 #include<iostream>
 #include<vector>
 #include <memory>
@@ -14,3 +17,5 @@ namespace my_db {
     void getMagnetLink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
     void removeMagnetlink(int id);
 }
+
+#endif
