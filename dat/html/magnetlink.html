@@ -17,40 +17,46 @@
             <input id="input_remove_torrent" type="number">
             <button id="btn_remove_torrent">Remove</button>
         </div>
-        <ul id="output_add_torrent"></ul>
+        <br>
+        <hr>
+        <br>
+        <div>
+            <button id="btn_show_torrent">Show Target Magnetlink</button>
+            <ul id="output_add_torrent"></ul>
+        </div>
 
     </div>
     <script>
         {
-            let ie = document.getElementById("input_add_torrent");
-            let bt = document.getElementById("btn_add_torrent");
-            let ir = document.getElementById("input_remove_torrent");
-            let br = document.getElementById("btn_remove_torrent");
-            
+            let input_for_add = document.getElementById("input_add_torrent");
+            let button_for_add = document.getElementById("btn_add_torrent");
+            let input_for_remove = document.getElementById("input_remove_torrent");
+            let button_for_remove = document.getElementById("btn_remove_torrent");
+
             function reqListener() {
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
             }
-            bt.addEventListener("click", function () {
-                console.log(">if.value = " + ie.value);
+            button_for_add.addEventListener("click", function () {
                 var oReq = new XMLHttpRequest();
                 oReq.addEventListener("load", reqListener);
                 oReq.open("POST", "/api/magnetlink/add");
-                oReq.send(JSON.stringify({ "magnetlink": ie.value }));
+                oReq.send(JSON.stringify({ "magnetlink": input_for_add.value }));
             })
             function reqListenerRemove() {
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
             }
-            br.addEventListener("click",function(){
-                console.log(">if.value = " + ie.value);
+            button_for_remove.addEventListener("click", function () {
                 var oReq = new XMLHttpRequest();
                 oReq.addEventListener("load", reqListenerRemove);
                 oReq.open("POST", "/api/magnetlink/remove");
-                oReq.send(JSON.stringify({ "id": parseInt(ir.value, 10) }));
+                oReq.send(JSON.stringify({ "id": parseInt(input_for_remove.value, 10) }));
             })
         }
         {
+
+            let button_for_show = document.getElementById("btn_show_torrent");
             let ot = document.getElementById("output_add_torrent");
 
             function reqListener() {
@@ -60,10 +66,14 @@
                     ot.insertAdjacentHTML("beforeend", "<li>[ " + ret["list"][i]["id"] + "]:" + ret["list"][i]["target"] + "</li>");
                 }
             }
-            var oReq = new XMLHttpRequest();
-            oReq.addEventListener("load", reqListener);
-            oReq.open("POST", "/api/magnetlink/list");
-            oReq.send();
+            button_for_show.addEventListener("click", function () {
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                oReq.open("POST", "/api/magnetlink/list");
+                oReq.send();
+            })
+
+
         }
     </script>
 
