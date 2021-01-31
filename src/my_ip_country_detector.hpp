@@ -11,6 +11,10 @@
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/address_v6.hpp>
 
+//
+// Get DOMAIN FROM IP
+// Get CUNTRY FROM IP
+//
 namespace my_ip_country_detector
 {
 
@@ -29,7 +33,7 @@ namespace my_ip_country_detector
     std::string find_country_from_ipv6(std::string ip);
     std::string find_country_from_ip(std::string ip);
     std::string find_dns_from_ip(std::string ip);
-    
+
 } // namespace my_ip_country_detector
 
 #endif // #ifndef _MY_IP_COUNTER_DETECTOR
