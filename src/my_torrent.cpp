@@ -16,6 +16,10 @@
 #include<regex>
 #include<sstream>
 
+//
+#include<my_ip_country_detector.hpp>
+
+
 namespace my_torrent
 {
     int _upload_max = -1;
@@ -118,9 +122,21 @@ namespace my_torrent
             std::string s;
             while(std::getline(f, s, ' ')) {          
                 if(std::find(ref.begin(), ref.end(), s) == ref.end()) {
+                    std::string country = "-";
+                    std::string dns = "";
+                    try {
+                        country = my_ip_country_detector::findCountryFromIP(s);
+                    } catch(std::exception e) {
+                    }
+
+                    try {
+                        country = my_ip_country_detector::findDnsFromIP(s);
+                    } catch(std::exception e) {
+                    }
                     ip_list_map[key].push_back(s);
                 }
             }
         }
     }
+    
 } // namespace my_torrent

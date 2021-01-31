@@ -106,6 +106,10 @@ namespace my_server
             _static_file_handle("./dat/html/ip_check.html", req, res);
         });
 
+        http_server.Get("/current_ip_info", [](const httplib::Request &req, httplib::Response &res) {
+            _static_file_handle("./dat/html/current_ip_info.html", req, res);
+        });
+
         //
         // api other
         //
@@ -120,6 +124,28 @@ namespace my_server
             nlohmann::json o;
             o["country"] = my_ip_country_detector::findCountryFromIP(inp["ip"].get<std::string>());
             o["domain"] = my_ip_country_detector::findDnsFromIP(inp["ip"].get<std::string>());
+            res.set_content(o.dump(), "text/json");
+            res.status = 200;
+        });
+
+        http_server.Post("/api/current_ip/list", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/api/current_ip/list" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            
+            nlohmann::json o;
+            auto ip_list_map = my_torrent::ip_list_map;
+            for(auto i = ip_list_map .begin();i != ip_list_map.end();i++) {
+                o[i->first] = {};
+                for(auto l : i->second) {
+                    o[i->first].push_back({
+                        {"ip", l}
+                    });
+                }
+                
+            }
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });

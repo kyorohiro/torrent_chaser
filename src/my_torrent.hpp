@@ -4,7 +4,20 @@
 
 #include<string>
 #include<vector>
+#include<map>
+#include <memory>
+
+
 namespace my_torrent {
+
+      struct IpInfo {
+            std::string ip_address;
+            std::string country;
+            std::string domain; 
+      };
+      //extern std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ip_list_map;
+      extern std::map<std::string, std::vector<std::string>> ip_list_map;
+
       std::string make_magnet_link(std::vector<char> binary);
       void setup(std::string bind_address, int upload_max, int download_max);
       void listen();
