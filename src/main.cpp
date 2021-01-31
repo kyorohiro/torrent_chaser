@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     // start httpserver
     std::thread server_thread(start_http_server_on_thread, 3);//NULL);
 
-    /*
+    
     //
     // start torrent
     my_torrent::setup("", -1, -1);
@@ -48,8 +48,7 @@ int main(int argc, char *argv[])
     }
 
     my_torrent::listen();
-    */
-    server_thread.join();
+    
 
     return 0;
 }
