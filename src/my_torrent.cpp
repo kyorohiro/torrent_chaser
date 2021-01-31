@@ -25,7 +25,9 @@ namespace my_torrent
     int _upload_max = -1;
     int _download_max = -1;
     std::shared_ptr<lt::session> _session;
-    std::map<std::string, std::vector<std::string>> ip_list_map ={};
+
+    std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
+    //std::map<std::string, std::vector<std::string>> ip_list_map ={};
 
     std::string make_magnet_link(std::vector<char> b)
     {
@@ -111,29 +113,41 @@ namespace my_torrent
         if(std::regex_match(log, matches, re) && matches.size() == 3){
             std::string key = matches[1];
             std::string value = matches[2];
-            //std::cout << "Matched" << matches[1] << ":" << matches[2]<<std::endl;        
-            if(ip_list_map.count(key) <= 0) {
-                ip_list_map[key] = std::vector<std::string>{};
+            //std::cout << "Matched" << matches[1] << ":" << matches[2]<<std::endl;      
+            
+            if(ipinfo_list_map.count(key) <= 0) {
+                ipinfo_list_map[key] = std::vector<std::shared_ptr<IpInfo>>{};
             }
             
-            std::vector<std::string> &ref = ip_list_map[key];
+            auto ref = ipinfo_list_map[key];
             //not contain
             std::istringstream f(value);
             std::string s;
-            while(std::getline(f, s, ' ')) {          
-                if(std::find(ref.begin(), ref.end(), s) == ref.end()) {
+            
+            while(std::getline(f, s, ' ')) { 
+                bool alreadyHas = false;     
+                for(auto v : ref){
+                    if(v->ip_address == s) {
+                        alreadyHas = true;
+                        break;
+                    }
+                }
+                if(!alreadyHas) {
                     std::string country = "-";
                     std::string dns = "";
+                    auto ss = std::make_shared<IpInfo>();
+                    ss->ip_address = s;
                     try {
-                        country = my_ip_country_detector::findCountryFromIP(s);
+                        ss->country = my_ip_country_detector::findCountryFromIP(s);
                     } catch(std::exception e) {
                     }
 
                     try {
-                        country = my_ip_country_detector::findDnsFromIP(s);
+                        ss->domain = my_ip_country_detector::findDnsFromIP(s);
                     } catch(std::exception e) {
                     }
-                    ip_list_map[key].push_back(s);
+                    ipinfo_list_map[key].push_back(ss);
+                    
                 }
             }
         }

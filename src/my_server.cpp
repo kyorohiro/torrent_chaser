@@ -136,12 +136,14 @@ namespace my_server
             }
             
             nlohmann::json o;
-            auto ip_list_map = my_torrent::ip_list_map;
+            auto ip_list_map = my_torrent::ipinfo_list_map;
             for(auto i = ip_list_map .begin();i != ip_list_map.end();i++) {
                 o[i->first] = {};
                 for(auto l : i->second) {
                     o[i->first].push_back({
-                        {"ip", l}
+                        {"ip", l->ip_address},
+                        {"country", l->country},
+                        {"domain", l->domain}
                     });
                 }
                 
