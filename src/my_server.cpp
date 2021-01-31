@@ -169,6 +169,27 @@ namespace my_server
             res.status = 200;
         });
 
+        http_server.Post("/api/torrentfile/add", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "call /api/torrentfile/add" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+
+            //
+            // get torrentfile binary
+            const char *buffer = req.body.c_str();
+            std::vector<char> xx(buffer, buffer + req.body.length());
+
+            //
+            // save .
+            std::string link = my_torrent::make_magnet_link(xx);
+            nlohmann::json o;
+            o["magnetlink"] = link;
+            res.set_content(o.dump(), "text/json");
+            res.status = 200;
+        });
+
         http_server.Post("/api/magnetlink/remove", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/magnetlink/remove" << std::endl;
             if (!handleAuthCheck(req, res))

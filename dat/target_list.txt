@@ -1,6 +1,0 @@
-./dat/torrentfiles/a1.torrent
-magnet:xxxx
-./dat/torrentfiles/a2.torrent
-magnet:yyy
-./dat/torrentfiles/a3.torrent
-./dat/torrentfiles/a4.torrent
