@@ -164,7 +164,7 @@ namespace my_server
             std::string b = req.body;
             nlohmann::json inp = nlohmann::json::parse(b);
             nlohmann::json o;
-            my_db::insertMagnetlink(inp["magnetlink"].get<std::string>());
+            my_db::insert_magnetlink(inp["magnetlink"].get<std::string>());
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
@@ -179,7 +179,7 @@ namespace my_server
             nlohmann::json inp = nlohmann::json::parse(b);
             std::cout << inp.dump() << std::endl;
             nlohmann::json o;
-            my_db::removeMagnetlink(inp["id"].get<int>());
+            my_db::remove_magnetlink(inp["id"].get<int>());
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
@@ -208,7 +208,7 @@ namespace my_server
             {
                 std::vector<std::shared_ptr<my_db::TargetInfo>> targetInfos;
 
-                my_db::getMagnetLink(targetInfos);
+                my_db::get_magnetlink(targetInfos);
                 nlohmann::json o;
 
                 o["list"] = nlohmann::json::array();

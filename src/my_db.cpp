@@ -18,7 +18,7 @@ namespace my_db
         printf("\n");
         return 0;
     }
-    void setupDB(std::string dbpath)
+    void setup(std::string dbpath)
     {
         {
             int rc = sqlite3_open(dbpath.c_str(), &db);
@@ -67,7 +67,7 @@ namespace my_db
             }
         }
     }
-    void insertMagnetlink(std::string magnetlink)
+    void insert_magnetlink(std::string magnetlink)
     {
         std::stringstream ss;
         ss << "INSERT INTO TARGET_INFO(TARGET) VALUES ("
@@ -82,7 +82,7 @@ namespace my_db
         }
     }
 
-    void removeMagnetlink(int id)
+    void remove_magnetlink(int id)
     {
         std::stringstream ss;
         ss << "DELETE  FROM TARGET_INFO WHERE id = " << id << ";";
@@ -131,7 +131,7 @@ namespace my_db
         printf("\n");
         return 0;
     }
-    void getMagnetLink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos)
+    void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos)
     {
         std::string sql = "SELECT * FROM TARGET_INFO;";
         char *zErrMsg = 0;

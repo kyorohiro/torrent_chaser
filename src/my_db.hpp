@@ -12,10 +12,10 @@ namespace my_db {
         std::string infohash;
         std::string name;
     };
-    void setupDB(std::string dbpath);
-    void insertMagnetlink(std::string magnetlink);
-    void getMagnetLink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
-    void removeMagnetlink(int id);
+    void setup(std::string dbpath);
+    void insert_magnetlink(std::string magnetlink);
+    void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
+    void remove_magnetlink(int id);
 }
 
 #endif

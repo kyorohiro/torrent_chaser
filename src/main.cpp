@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     target_list_reader::showDebugLog();
 
     // setup table
-    my_db::setupDB(".app.db");
+    my_db::setup(".app.db");
 
     // start httpserver
     
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     // setup(std::string bind_address, int upload_max, int download_max)
     my_torrent::setup("", -1, -1);
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
-    my_db::getMagnetLink(target_info_list);
+    my_db::get_magnetlink(target_info_list);
     for(auto l : target_info_list) {
         my_torrent::add_magnetlink(l->target);
     }
