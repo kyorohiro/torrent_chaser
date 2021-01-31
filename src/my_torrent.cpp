@@ -13,12 +13,11 @@
 
 //
 //
-#include<regex>
-#include<sstream>
+#include <regex>
+#include <sstream>
 
 //
-#include<my_ip_country_detector.hpp>
-
+#include <my_ip_country_detector.hpp>
 
 namespace my_torrent
 {
@@ -86,7 +85,29 @@ namespace my_torrent
             h.set_download_limit(_download_max);
         }
     }
+    void add_torrentfile(std::string path)
+    {
+        lt::add_torrent_params torrent_params;
+        torrent_params.save_path = ".data"; // save in this dir
+        lt::error_code ec;
+        torrent_params.ti = std::make_shared<lt::torrent_info>(path);
 
+        if (ec)
+        {
+            std::cerr << "wrong torrentfile " << path << std::endl;
+            throw std::invalid_argument("wrong torrentfile \"" + path + "\"");
+        }
+        //torrent_params = lt::parse_magnet_uri(m);
+        lt::torrent_handle h = _session->add_torrent(torrent_params);
+        if (_upload_max >= 0)
+        {
+            h.set_upload_limit(_upload_max);
+        }
+        if (_download_max >= 0)
+        {
+            h.set_download_limit(_download_max);
+        }
+    }
     void listen()
     {
         while (true)
@@ -97,7 +118,7 @@ namespace my_torrent
             lt::state_update_alert *st;
             for (lt::alert *a : alerts)
             {
-                // 
+                //
                 std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
 
                 // extract ip address from log
@@ -107,50 +128,62 @@ namespace my_torrent
         }
     }
 
-    void extract_ip_list_from_log(std::string log) {
+    void extract_ip_list_from_log(std::string log)
+    {
         std::smatch matches;
         static const std::regex re("(.*):.*add_peer\\(\\).*\\[(.*)\\].*");
-        if(std::regex_match(log, matches, re) && matches.size() == 3){
+        if (std::regex_match(log, matches, re) && matches.size() == 3)
+        {
             std::string key = matches[1];
             std::string value = matches[2];
-            //std::cout << "Matched" << matches[1] << ":" << matches[2]<<std::endl;      
-            
-            if(ipinfo_list_map.count(key) <= 0) {
+            //std::cout << "Matched" << matches[1] << ":" << matches[2]<<std::endl;
+
+            if (ipinfo_list_map.count(key) <= 0)
+            {
                 ipinfo_list_map[key] = std::vector<std::shared_ptr<IpInfo>>{};
             }
-            
+
             auto ref = ipinfo_list_map[key];
             //not contain
             std::istringstream f(value);
             std::string s;
-            
-            while(std::getline(f, s, ' ')) { 
-                bool alreadyHas = false;     
-                for(auto v : ref){
-                    if(v->ip_address == s) {
+
+            while (std::getline(f, s, ' '))
+            {
+                bool alreadyHas = false;
+                for (auto v : ref)
+                {
+                    if (v->ip_address == s)
+                    {
                         alreadyHas = true;
                         break;
                     }
                 }
-                if(!alreadyHas) {
+                if (!alreadyHas)
+                {
                     std::string country = "-";
                     std::string dns = "";
                     auto ss = std::make_shared<IpInfo>();
                     ss->ip_address = s;
-                    try {
+                    try
+                    {
                         ss->country = my_ip_country_detector::find_country_from_ip(s);
-                    } catch(std::exception e) {
+                    }
+                    catch (std::exception e)
+                    {
                     }
 
-                    try {
+                    try
+                    {
                         ss->domain = my_ip_country_detector::find_dns_from_ip(s);
-                    } catch(std::exception e) {
+                    }
+                    catch (std::exception e)
+                    {
                     }
                     ipinfo_list_map[key].push_back(ss);
-                    
                 }
             }
         }
     }
-    
+
 } // namespace my_torrent

@@ -102,9 +102,6 @@ namespace my_server
             _static_file_handle("./res/html/magnetlink.html", req, res);
         });
 
-        http_server.Get("/torrentfile", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./res/html/torrentfile.html", req, res);
-        });
         http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/ip_check.html", req, res);
         });

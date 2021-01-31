@@ -20,19 +20,53 @@
             <input id="input_add_torrent" type="text">
             <button id="btn_add_torrent">Add</button>
         </div>
+    </div>
+    <br>
+    <div>
+        <label>Input Torrentfile</label>
+        <div>
+            <input id="input_create_torrentfile" type="file">
+            <button id="btn_create_torrentfile">Add</button><br>
+        </div>
+    </div>
+    <br>
+    <div>
+        <label>Remove from DB</label>
         <div>
             <input id="input_remove_torrent" type="number">
             <button id="btn_remove_torrent">Remove</button>
         </div>
-        <br>
-        <hr>
-        <br>
-        <div>
-            <button id="btn_show_torrent">Show Target Magnetlink</button>
-            <table id="output_add_torrent"></tablel>
-        </div>
-
     </div>
+    <br>
+    <hr>
+    <br>
+    <div>
+        <button id="btn_show_torrent">Show Target Magnetlink</button>
+        <table id="output_add_torrent">
+            </tablel>
+    </div>
+    <script>
+        {
+            let file;
+            let ie = document.getElementById("input_create_torrentfile");
+            let bt = document.getElementById("btn_create_torrentfile");
+            let ot = document.getElementById("output_create_torrentfile");
+
+            function torListener() {
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+                ot.innerText = ret["magnetlink"];
+            }
+            bt.addEventListener("click", function () {
+                console.log(">ie.value = " + ie.value);
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", torListener);
+                //oReq.setRequestHeader('Content-Type', 'application/json');
+                oReq.open("POST", "/api/torrentfile/add");
+                oReq.send(ie.files[0]);
+            })
+        }
+    </script>
     <script>
         {
             let input_for_add = document.getElementById("input_add_torrent");
@@ -61,6 +95,8 @@
                 oReq.send(JSON.stringify({ "id": parseInt(input_for_remove.value, 10) }));
             })
         }
+    </script>
+    <script>
         {
 
             let button_for_show = document.getElementById("btn_show_torrent");
@@ -71,12 +107,12 @@
                 console.log(ret);
                 ot.innerText = '';
                 ot.insertAdjacentHTML("beforeend",
-                     "<tr><td>id</td><td>infohash</td><td>name</td><td>target</td></tr>");
+                    "<tr><td>id</td><td>infohash</td><td>name</td><td>target</td></tr>");
                 for (i = 0; i < ret["list"].length; i++) {
                     ot.insertAdjacentHTML("beforeend",
-                     "<tr><td>" + ret["list"][i]["id"] + "</td><td>" + ret["list"][i]["infohash"] 
-                        + "</td><td>" +ret["list"][i]["name"] + "</td><td>" +ret["list"][i]["target"]  
-                     + "</td></tr>");
+                        "<tr><td>" + ret["list"][i]["id"] + "</td><td>" + ret["list"][i]["infohash"]
+                        + "</td><td>" + ret["list"][i]["name"] + "</td><td>" + ret["list"][i]["target"]
+                        + "</td></tr>");
                 }
             }
             button_for_show.addEventListener("click", function () {

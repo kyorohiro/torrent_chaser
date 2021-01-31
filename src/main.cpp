@@ -9,6 +9,7 @@
 #include <sstream>
 #include <thread>
 #include <my_config.h>
+#include <regex>
 
 //
 //
@@ -43,8 +44,13 @@ int main(int argc, char *argv[])
 
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
     my_db::get_magnetlink(target_info_list);
+    std::regex re("magnet:.*");    
     for(auto l : target_info_list) {
-        my_torrent::add_magnetlink(l->target);
+        if(std::regex_match(l->target,re)){
+            my_torrent::add_magnetlink(l->target);
+        } else {
+            my_torrent::add_torrentfile(l->target);
+        }
     }
 
     my_torrent::listen();
