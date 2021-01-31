@@ -5,6 +5,10 @@
 #include<vector>
 #include <memory>
 
+
+//
+// Stock peer's ip infomation and target metainfo on SQLITE DB
+//
 namespace my_db {
     struct TargetInfo {
         int id;
