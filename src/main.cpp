@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 {
 
     // load a pair informaton about ip and contry
-    my_ip_country_detector::setupContext(setting_ipv4_cvs_path, setting_ipv6_cvs_path);
+    my_ip_country_detector::setup_context(setting_ipv4_cvs_path, setting_ipv6_cvs_path);
 
     // load a target metainfo ,torrent and magnetlink
     target_list_reader::loadTargetListFile(magnetLinkListPath);

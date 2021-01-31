@@ -122,8 +122,8 @@ namespace my_server
             std::string b = req.body;
             nlohmann::json inp = nlohmann::json::parse(b);
             nlohmann::json o;
-            o["country"] = my_ip_country_detector::findCountryFromIP(inp["ip"].get<std::string>());
-            o["domain"] = my_ip_country_detector::findDnsFromIP(inp["ip"].get<std::string>());
+            o["country"] = my_ip_country_detector::find_country_from_ip(inp["ip"].get<std::string>());
+            o["domain"] = my_ip_country_detector::find_dns_from_ip(inp["ip"].get<std::string>());
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });

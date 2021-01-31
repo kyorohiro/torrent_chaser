@@ -138,12 +138,12 @@ namespace my_torrent
                     auto ss = std::make_shared<IpInfo>();
                     ss->ip_address = s;
                     try {
-                        ss->country = my_ip_country_detector::findCountryFromIP(s);
+                        ss->country = my_ip_country_detector::find_country_from_ip(s);
                     } catch(std::exception e) {
                     }
 
                     try {
-                        ss->domain = my_ip_country_detector::findDnsFromIP(s);
+                        ss->domain = my_ip_country_detector::find_dns_from_ip(s);
                     } catch(std::exception e) {
                     }
                     ipinfo_list_map[key].push_back(ss);

@@ -26,27 +26,27 @@ namespace my_ip_country_detector
 
     IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::uint128_t ip);
 
-    void setupContext(std::string filepathV4, std::string filepathV6)
+    void setup_context(std::string filepathV4, std::string filepathV6)
     {
         loadDataFromCVS(filepathV4, contextV4);
         loadDataFromCVS(filepathV6, contextV6);
     }
 
-    std::string findCountryFromIP(std::string ip)
+    std::string find_country_from_ip(std::string ip)
     {
         boost::asio::ip::address a(boost::asio::ip::address::from_string(ip));
 
         if (a.is_v4())
         {
-            return findCountryFromIPv4(ip);
+            return find_country_from_ipv4(ip);
         }
         else
         {
-            return findCountryFromIPv6(ip);
+            return find_country_from_ipv6(ip);
         }
     }
 
-    std::string findDnsFromIP(std::string ip)
+    std::string find_dns_from_ip(std::string ip)
     {
         boost::asio::ip::address a(boost::asio::ip::address::from_string(ip));
         if (a.is_v4())
@@ -93,7 +93,7 @@ namespace my_ip_country_detector
             }
         }
     }
-    std::string findCountryFromIPv6(std::string ip)
+    std::string find_country_from_ipv6(std::string ip)
     {
         boost::asio::ip::address_v6 v6 = boost::asio::ip::address_v6::from_string(ip);
         boost::multiprecision::uint128_t val{};
@@ -101,24 +101,24 @@ namespace my_ip_country_detector
         {
             (val <<= 8) |= b;
         }
-        return findCountryFromIPv6(val);
+        return find_country_from_ipv6(val);
     }
-    std::string findCountryFromIPv4(std::string ip)
+    std::string find_country_from_ipv4(std::string ip)
     {
         std::cout << "(9) <<" << ip << std::endl;
         boost::asio::ip::address_v4 i = boost::asio::ip::address_v4::from_string(ip.c_str());
         std::cout << "(9) <<" << i.to_ulong() << std::endl;
 
         std::cout << boost::multiprecision::uint128_t(i.to_ulong()) << std::endl;
-        return findCountryFromIPv4(boost::multiprecision::uint128_t(i.to_ulong()));
+        return find_country_from_ipv4(boost::multiprecision::uint128_t(i.to_ulong()));
     }
 
-    std::string findCountryFromIPv4(boost::multiprecision::uint128_t ip)
+    std::string find_country_from_ipv4(boost::multiprecision::uint128_t ip)
     {
         return find(contextV4, ip).country_name;
     }
 
-    std::string findCountryFromIPv6(boost::multiprecision::uint128_t ip)
+    std::string find_country_from_ipv6(boost::multiprecision::uint128_t ip)
     {
         return find(contextV6, ip).country_name;
     }
@@ -131,12 +131,12 @@ namespace my_ip_country_detector
         while (std::getline(f, l))
         {
             //std::cout << l << std::endl;
-            auto v = createIpAndCountryInfo(l);
+            auto v = create_ip_and_country_info(l);
             output.push_back(v);
         }
     }
 
-    IpAndCountryInfo createIpAndCountryInfo(std::string line)
+    IpAndCountryInfo create_ip_and_country_info(std::string line)
     {
         IpAndCountryInfo ret;
         std::stringstream ss;

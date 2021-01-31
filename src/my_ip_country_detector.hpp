@@ -21,15 +21,15 @@ namespace my_ip_country_detector
         std::string country_name;
     };
 
-    IpAndCountryInfo createIpAndCountryInfo(std::string line);
-    void setupContext(std::string filepathV4, std::string filepathV6);
-    std::string findCountryFromIPv4(boost::multiprecision::uint128_t ip);
-    std::string findCountryFromIPv6(boost::multiprecision::uint128_t ip);
-    std::string findCountryFromIPv4(std::string ip);
-    std::string findCountryFromIPv6(std::string ip);
-    std::string findCountryFromIP(std::string ip);
-
-    std::string findDnsFromIP(std::string ip);
+    IpAndCountryInfo create_ip_and_country_info(std::string line);
+    void setup_context(std::string filepathV4, std::string filepathV6);
+    std::string find_country_from_ipv4(boost::multiprecision::uint128_t ip);
+    std::string find_country_from_ipv6(boost::multiprecision::uint128_t ip);
+    std::string find_country_from_ipv4(std::string ip);
+    std::string find_country_from_ipv6(std::string ip);
+    std::string find_country_from_ip(std::string ip);
+    std::string find_dns_from_ip(std::string ip);
+    
 } // namespace my_ip_country_detector
 
 #endif // #ifndef _MY_IP_COUNTER_DETECTOR
