@@ -2,6 +2,13 @@
 
 <head>
     <title>Torrent Chaser</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 
 <body>
@@ -22,7 +29,7 @@
         <br>
         <div>
             <button id="btn_show_torrent">Show Target Magnetlink</button>
-            <ul id="output_add_torrent"></ul>
+            <table id="output_add_torrent"></tablel>
         </div>
 
     </div>
@@ -62,8 +69,14 @@
             function reqListener() {
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
+                ot.innerText = '';
+                ot.insertAdjacentHTML("beforeend",
+                     "<tr><td>id</td><td>infohash</td><td>name</td><td>target</td></tr>");
                 for (i = 0; i < ret["list"].length; i++) {
-                    ot.insertAdjacentHTML("beforeend", "<li>[ " + ret["list"][i]["id"] + "]:" + ret["list"][i]["target"] + "</li>");
+                    ot.insertAdjacentHTML("beforeend",
+                     "<tr><td>" + ret["list"][i]["id"] + "</td><td>" + ret["list"][i]["infohash"] 
+                        + "</td><td>" +ret["list"][i]["name"] + "</td><td>" +ret["list"][i]["target"]  
+                     + "</td></tr>");
                 }
             }
             button_for_show.addEventListener("click", function () {
