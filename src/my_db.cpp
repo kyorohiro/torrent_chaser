@@ -5,6 +5,8 @@
 #include <memory>
 //
 #include <libtorrent/torrent_info.hpp>
+#include <libtorrent/magnet_uri.hpp>
+
 #include <my_base_encode.hpp>
 
 namespace my_db
@@ -19,7 +21,7 @@ namespace my_db
     }
     void setup(std::string dbpath, std::string torrent_file_root_path)
     {
-        torrent_file_root_path = _torrent_file_root_path;
+        _torrent_file_root_path = torrent_file_root_path;
         {
             int rc = sqlite3_open(dbpath.c_str(), &_db);
             if (rc != SQLITE_OK)
@@ -67,27 +69,37 @@ namespace my_db
             }
         }
     }
-
+    void insert_target_info(std::string magnetlink, std::string info_hash, std::string name);
     void save_torrent_file(const char *binary, int size)
     {
         lt::torrent_info x(binary, size);
-
-        std::string infohashHex = my_base_encode::encodeHex(x.info_hash().to_string());
-        std::fstream z(_torrent_file_root_path+"/"+infohashHex);
+        std::string infohash_hex = my_base_encode::encodeHex(x.info_hash().to_string());
+        std::string path = _torrent_file_root_path+"/"+infohash_hex+".torrent";
         std::fstream outfile;
-        outfile.open("file.dat",  std::ios_base::out | std::ios_base::binary);
+        outfile.open(_torrent_file_root_path+"/"+infohash_hex+".torrent",  std::ios_base::out | std::ios_base::binary);
         outfile.write(binary, size);
         outfile.close();
-        //fname
+        insert_target_info(path, infohash_hex, x.name());
     }
 
     void insert_magnetlink(std::string magnetlink)
     {
+        auto link =lt::parse_magnet_uri(magnetlink);
+        std::string infohash_hex = my_base_encode::encodeHex(link.info_hashes.get_best().to_string());
+       insert_target_info(magnetlink, infohash_hex,"");
+    }
+
+    void insert_target_info(std::string magnetlink, std::string info_hash, std::string name)
+    {
         std::stringstream ss;
-        ss << "INSERT INTO TARGET_INFO(TARGET) VALUES ("
-           << "'" << magnetlink << "');";
+        ss << "INSERT INTO TARGET_INFO(TARGET,INFOHASH,NAME) VALUES ("
+           << "'" << magnetlink << "',"
+           <<  "'" << info_hash << "',"
+           <<  "'" << name << "'"
+           <<");";
 
         std::string sql = ss.str();
+        std::cout << sql << std::endl;
         char *zErrMsg = 0;
         int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
         if (rc != SQLITE_OK)
