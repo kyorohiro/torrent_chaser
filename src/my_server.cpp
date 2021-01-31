@@ -30,6 +30,9 @@ namespace my_server
 
     httplib::Server http_server;
 
+    //
+    // Basic Authorization
+    //
     bool handleAuthCheck(const httplib::Request &req, httplib::Response &res)
     {
         std::string value = req.get_header_value("Authorization");
@@ -67,62 +70,44 @@ namespace my_server
         return false;
     }
 
+    void _static_file_handle(std::string filepath, const httplib::Request &req, httplib::Response &res)
+    {
+        std::cout << "[request]:" << filepath << std::endl;
+        if (!handleAuthCheck(req, res))
+        {
+            return;
+        }
+        std::fstream input(filepath);
+        std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+        res.set_content(std::string(source.data(), source.size()), "text/html");
+        res.status = 200;
+    }
+
     void listen(std::string ip, int port, std::string _username, std::string _password)
     {
         username = _username;
         password = _password;
         //
+        // static file
+        //
         http_server.Get("/", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/" << std::endl;
-            if (!handleAuthCheck(req, res))
-            {
-                return;
-            }
-            std::fstream input("./dat/html/index.html");
-            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-            res.set_content(source.data(), "text/html");
-            res.status = 200;
-            std::cout << source.data() << std::endl;
+            _static_file_handle("./dat/html/index.html", req, res);
         });
-        
 
         http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/" << std::endl;
-            if (!handleAuthCheck(req, res))
-            {
-                return;
-            }
-            std::fstream input("./dat/html/create_magnetlink.html");
-            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-            res.set_content(source.data(), "text/html");
-            res.status = 200;
+            _static_file_handle("./dat/html/create_magnetlink.html", req, res);
         });
 
         http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/" << std::endl;
-            if (!handleAuthCheck(req, res))
-            {
-                return;
-            }
-            std::fstream input("./dat/html/magnetlink.html");
-            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-            res.set_content(source.data(), "text/html");
-            res.status = 200;
+            _static_file_handle("./dat/html/magnetlink.html", req, res);
         });
 
         http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/" << std::endl;
-            if (!handleAuthCheck(req, res))
-            {
-                return;
-            }
-            std::fstream input("./dat/html/ip_check.html");
-            std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-
-            res.set_content(source.data(), "text/html");
-            res.status = 200;
+            _static_file_handle("./dat/html/ip_check.html", req, res);
         });
-        // ip info api
+
+        //
+        // api other
         //
         http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/get_info_from_ip" << std::endl;
@@ -139,7 +124,9 @@ namespace my_server
             res.status = 200;
         });
 
-        // regist magnetlink api
+        //
+        // api magnetlink
+        //
         http_server.Post("/api/magnetlink/add", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/add_magnet_link" << std::endl;
             if (!handleAuthCheck(req, res))
@@ -162,7 +149,7 @@ namespace my_server
             }
             std::string b = req.body;
             nlohmann::json inp = nlohmann::json::parse(b);
-         std::cout << inp.dump()<< std::endl;
+            std::cout << inp.dump() << std::endl;
             nlohmann::json o;
             my_db::removeMagnetlink(inp["id"].get<int>());
             res.set_content(o.dump(), "text/json");
@@ -175,8 +162,8 @@ namespace my_server
             {
                 return;
             }
-            const char * buffer = req.body.c_str();
-            std::vector<char> xx(buffer, buffer+req.body.length());
+            const char *buffer = req.body.c_str();
+            std::vector<char> xx(buffer, buffer + req.body.length());
             std::string link = my_torrent::make_magnet_link(xx);
             nlohmann::json o;
             o["magnetlink"] = link;
@@ -184,9 +171,7 @@ namespace my_server
             res.status = 200;
         });
 
-        // regist magnetlink api
         http_server.Post("/api/magnetlink/list", [](const httplib::Request &req, httplib::Response &res) {
-            //std::cout << "p:/api/add_magnet_link" << std::endl;
             if (!handleAuthCheck(req, res))
             {
                 return;
@@ -194,16 +179,11 @@ namespace my_server
             try
             {
                 std::vector<std::shared_ptr<my_db::TargetInfo>> targetInfos;
-                std::cout << "-------------1" << std::endl;
 
                 my_db::getMagnetLink(targetInfos);
-                //std::string b = req.body;
-                //nlohmann::json inp = nlohmann::json::parse(b);
                 nlohmann::json o;
-                std::cout << "-------------1-1" << std::endl;
 
                 o["list"] = nlohmann::json::array();
-                std::cout << "-------------2" << std::endl;
 
                 for (auto i : targetInfos)
                 {
@@ -214,7 +194,6 @@ namespace my_server
                         {"target", i->target},
                     });
                 }
-                std::cout << "-------------3" << std::endl;
                 res.set_content(o.dump(), "text/json");
                 res.status = 200;
             }
@@ -223,8 +202,6 @@ namespace my_server
                 std::cout << e.what() << std::endl;
             }
             //my_db::insertMagnetlink(inp["magnetlink"].get<std::string>());
-
-
         });
         http_server.listen(ip.c_str(), port);
     }

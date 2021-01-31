@@ -1,5 +1,5 @@
 #include<string>
 
-std::string username = "<your username>";
-std::string password = "<your password>";
+std::string username = "Torrent_Kyorohiro";
+std::string password = "Torrent_CPP2101";
 

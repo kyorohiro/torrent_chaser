@@ -51,6 +51,11 @@ int main(int argc, char *argv[])
     std::string input;
     // setup(std::string bind_address, int upload_max, int download_max)
     my_torrent::setup("", -1, -1);
+    std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
+    my_db::getMagnetLink(target_info_list);
+    for(auto l : target_info_list) {
+        my_torrent::add_magnetlink(l->target);
+    }
     my_torrent::listen();
     /*
     while (1)

@@ -11,11 +11,17 @@
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/error_code.hpp>
 
+//
+//
+#include<regex>
+#include<sstream>
+
 namespace my_torrent
 {
     int _upload_max = -1;
     int _download_max = -1;
     std::shared_ptr<lt::session> _session;
+    std::map<std::string, std::vector<std::string>> ip_list_map ={};
 
     std::string make_magnet_link(std::vector<char> b)
     {
@@ -85,31 +91,36 @@ namespace my_torrent
             lt::state_update_alert *st;
             for (lt::alert *a : alerts)
             {
+                // 
                 std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
-                switch (a->type())
-                {
-                case lt::state_update_alert::alert_type:
-                    //lt::state_update_alert
-                    st = (lt::state_update_alert *)(a);
-                    {
-                        lt::torrent_status const &s = st->status[0];
-                        std::cout << '\r' //<< lt::state(s.state) << ' '
-                                  << (s.download_payload_rate / 1000) << " kB/s "
-                                  << (s.total_done / 1000) << " kB ("
-                                  << (s.progress_ppm / 10000) << "%) downloaded ("
-                                  << s.num_peers << " peers)\x1b[K";
-                        std::cout.flush();
-                    }
-                    break;
-                case lt::torrent_finished_alert::alert_type:
-                    std::cout << ">> finished : ==" << std::endl;
-                    //goto END;
-                case lt::torrent_error_alert::alert_type:
-                    std::cout << ">> error : ==" << std::endl;
-                    //goto END;
-                }
+
+                // extract ip address from log
+                extract_ip_list_from_log(a->message());
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+    }
+
+    void extract_ip_list_from_log(std::string log) {
+        std::smatch matches;
+        static const std::regex re("(.*):.*add_peer\\(\\).*\\[(.*)\\].*");
+        if(std::regex_match(log, matches, re) && matches.size() == 3){
+            std::string key = matches[1];
+            std::string value = matches[2];
+            //std::cout << "Matched" << matches[1] << ":" << matches[2]<<std::endl;        
+            if(ip_list_map.count(key) <= 0) {
+                ip_list_map[key] = std::vector<std::string>{};
+            }
+            
+            std::vector<std::string> &ref = ip_list_map[key];
+            //not contain
+            std::istringstream f(value);
+            std::string s;
+            while(std::getline(f, s, ' ')) {          
+                if(std::find(ref.begin(), ref.end(), s) == ref.end()) {
+                    ip_list_map[key].push_back(s);
+                }
+            }
         }
     }
 } // namespace my_torrent
