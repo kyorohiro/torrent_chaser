@@ -3,28 +3,28 @@
 #include <sstream>
 #include <my_db.hpp>
 #include <memory>
+//
+#include <libtorrent/torrent_info.hpp>
+#include <my_base_encode.hpp>
 
 namespace my_db
 {
-    sqlite3 *db;
+    //
+    sqlite3 *_db;
+    std::string _torrent_file_root_path;
+
     int callback(void *NotUsed, int argc, char **argv, char **azColName)
     {
-        int i;
-        //std::cout << "callback" << *((std::string*)NotUsed)<<std::endl;
-        for (i = 0; i < argc; i++)
-        {
-            printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-        }
-        printf("\n");
         return 0;
     }
-    void setup(std::string dbpath)
+    void setup(std::string dbpath, std::string torrent_file_root_path)
     {
+        torrent_file_root_path = _torrent_file_root_path;
         {
-            int rc = sqlite3_open(dbpath.c_str(), &db);
+            int rc = sqlite3_open(dbpath.c_str(), &_db);
             if (rc != SQLITE_OK)
             {
-                throw std::runtime_error("failed to open sqllite" + std::string(sqlite3_errmsg(db)));
+                throw std::runtime_error("failed to open sqllite" + std::string(sqlite3_errmsg(_db)));
             }
         }
 
@@ -42,7 +42,7 @@ namespace my_db
                 "INFO TEXT"
                 ")";
             char *zErrMsg = 0;
-            int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+            int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
             if (rc != SQLITE_OK)
             {
                 // throw std::runtime_error("failed to open sqllite" + std::string(sqlite3_errmsg(db)));
@@ -60,13 +60,27 @@ namespace my_db
                 "NAME TEXT"
                 ")";
             char *zErrMsg = 0;
-            int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+            int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
             if (rc != SQLITE_OK)
             {
                 //throw std::runtime_error("failed to open sqllite" + std::string(sqlite3_errmsg(db)));
             }
         }
     }
+
+    void save_torrent_file(const char *binary, int size)
+    {
+        lt::torrent_info x(binary, size);
+
+        std::string infohashHex = my_base_encode::encodeHex(x.info_hash().to_string());
+        std::fstream z(_torrent_file_root_path+"/"+infohashHex);
+        std::fstream outfile;
+        outfile.open("file.dat",  std::ios_base::out | std::ios_base::binary);
+        outfile.write(binary, size);
+        outfile.close();
+        //fname
+    }
+
     void insert_magnetlink(std::string magnetlink)
     {
         std::stringstream ss;
@@ -75,10 +89,10 @@ namespace my_db
 
         std::string sql = ss.str();
         char *zErrMsg = 0;
-        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+        int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
         if (rc != SQLITE_OK)
         {
-            throw std::runtime_error(std::string(sqlite3_errmsg(db)));
+            throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
         }
     }
 
@@ -88,13 +102,13 @@ namespace my_db
         ss << "DELETE  FROM TARGET_INFO WHERE id = " << id << ";";
 
         std::string sql = ss.str();
-        std::cout << ">>"<< sql << std::endl;
+        std::cout << ">>" << sql << std::endl;
         char *zErrMsg = 0;
-        int rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+        int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
         if (rc != SQLITE_OK)
         {
-            std::cout << sqlite3_errmsg(db) << std::endl;
-            throw std::runtime_error(std::string(sqlite3_errmsg(db)));
+            std::cout << sqlite3_errmsg(_db) << std::endl;
+            throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
         }
     }
 
@@ -136,12 +150,12 @@ namespace my_db
         std::string sql = "SELECT * FROM TARGET_INFO;";
         char *zErrMsg = 0;
         std::cout << "-------------3a" << std::endl;
-        int rc = sqlite3_exec(db, sql.c_str(), callbackGetMagnetLink, &targetInfos, &zErrMsg);
+        int rc = sqlite3_exec(_db, sql.c_str(), callbackGetMagnetLink, &targetInfos, &zErrMsg);
         if (rc != SQLITE_OK)
         {
             std::cout << "-------------3b" << std::endl;
 
-            throw std::runtime_error(std::string(sqlite3_errmsg(db)));
+            throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
         }
         std::cout << "-------------3c" << std::endl;
     }

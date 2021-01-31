@@ -91,23 +91,26 @@ namespace my_server
         // static file
         //
         http_server.Get("/", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./dat/html/index.html", req, res);
+            _static_file_handle("./res/html/index.html", req, res);
         });
 
         http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./dat/html/create_magnetlink.html", req, res);
+            _static_file_handle("./res/html/create_magnetlink.html", req, res);
         });
 
         http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./dat/html/magnetlink.html", req, res);
+            _static_file_handle("./res/html/magnetlink.html", req, res);
         });
 
+        http_server.Get("/torrentfile", [](const httplib::Request &req, httplib::Response &res) {
+            _static_file_handle("./res/html/torrentfile.html", req, res);
+        });
         http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./dat/html/ip_check.html", req, res);
+            _static_file_handle("./res/html/ip_check.html", req, res);
         });
 
         http_server.Get("/current_ip_info", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./dat/html/current_ip_info.html", req, res);
+            _static_file_handle("./res/html/current_ip_info.html", req, res);
         });
 
         //
@@ -179,13 +182,15 @@ namespace my_server
             //
             // get torrentfile binary
             const char *buffer = req.body.c_str();
-            std::vector<char> xx(buffer, buffer + req.body.length());
+            //std::vector<char> xx(buffer, buffer + req.body.length());
 
             //
-            // save .
-            std::string link = my_torrent::make_magnet_link(xx);
+            // save 
+            my_db::save_torrent_file(buffer, req.body.length());
+
+            //
+            //
             nlohmann::json o;
-            o["magnetlink"] = link;
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });

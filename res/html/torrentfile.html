@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <title>Torrent Chaser</title>
+</head>
+
+<body>
+    <h1> Create Magnetlink</h1>
+    <div>
+        <label>Input Torrentfile</label>
+        <input id="input_create_torrentfile" type="file">
+        <button id="btn_create_torrentfile">Create</button><br>
+        <span id="output_create_torrentfile"></span><br>
+    </div>
+    <script>
+        {
+            let file;
+            let ie = document.getElementById("input_create_torrentfile");
+            let bt = document.getElementById("btn_create_torrentfile");
+            let ot = document.getElementById("output_create_torrentfile");
+
+            function reqListener() {
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+                ot.innerText = ret["magnetlink"];
+            }
+            bt.addEventListener("click", function () {
+                console.log(">ie.value = " + ie.value);
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                //oReq.setRequestHeader('Content-Type', 'application/json');
+                oReq.open("POST", "/api/torrentfile/add");
+                oReq.send(ie.files[0]);
+            })
+        }
+    </script>
+
+    
+</body>
+
+</html>

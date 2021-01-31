@@ -16,10 +16,11 @@ namespace my_db {
         std::string infohash;
         std::string name;
     };
-    void setup(std::string dbpath);
+    void setup(std::string dbpath, std::string torrent_file_root_path);
     void insert_magnetlink(std::string magnetlink);
     void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
-    void remove_magnetlink(int id);
+    void remove_magnetlink(int id);    
+    void save_torrent_file(const char *binary, int size);
 }
 
 #endif
