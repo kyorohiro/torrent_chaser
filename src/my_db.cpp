@@ -73,7 +73,7 @@ namespace my_db
         }
     }
     void insert_target_info(std::string unique_id, std::string magnetlink, std::string info_hash, std::string name);
-    void save_torrent_file(const char *binary, int size)
+    TargetInfo save_torrent_file(const char *binary, int size)
     {
         lt::torrent_info x(binary, size);
         std::string infohash_hex = my_base_encode::encode_hex(x.info_hash().to_string());
@@ -86,9 +86,16 @@ namespace my_db
         outfile.write(binary, size);
         outfile.close();
         insert_target_info(unique_id, path, infohash_hex, x.name());
+
+        TargetInfo info;
+        info.unique_id = unique_id;
+        info.target = path;
+        info.infohash = infohash_hex;
+        info.name = x.name();
+        return info;
     }
 
-    void insert_magnetlink(std::string magnetlink)
+    TargetInfo insert_magnetlink(std::string magnetlink)
     {
         auto link = lt::parse_magnet_uri(magnetlink);
 
@@ -101,6 +108,12 @@ namespace my_db
         std::string infohash_hex = my_base_encode::encode_hex(link.info_hashes.get_best().to_string());
 
         insert_target_info(unique_id, path, infohash_hex, "");
+        TargetInfo info;
+        info.unique_id = unique_id;
+        info.target = path;
+        info.infohash = infohash_hex;
+        info.name = "";
+        return info;
     }
 
     void insert_target_info(std::string unique_id, std::string magnetlink, std::string info_hash, std::string name)

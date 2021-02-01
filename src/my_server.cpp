@@ -20,6 +20,8 @@
 #include <my_ip_country_detector.hpp>
 #include <my_db.hpp>
 #include <my_torrent.hpp>
+
+
 namespace my_server
 {
     std::string password;
@@ -164,7 +166,8 @@ namespace my_server
             std::string b = req.body;
             nlohmann::json inp = nlohmann::json::parse(b);
             nlohmann::json o;
-            my_db::insert_magnetlink(inp["magnetlink"].get<std::string>());
+            my_db::TargetInfo target_info = my_db::insert_magnetlink(inp["magnetlink"].get<std::string>());
+            my_torrent::add_magnetlink(target_info.unique_id, inp["magnetlink"].get<std::string>());
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
@@ -183,7 +186,8 @@ namespace my_server
 
             //
             // save 
-            my_db::save_torrent_file(buffer, req.body.length());
+            my_db::TargetInfo target_info = my_db::save_torrent_file(buffer, req.body.length());
+            my_torrent::add_torrentfile(target_info.unique_id, target_info.target);
 
             //
             //
