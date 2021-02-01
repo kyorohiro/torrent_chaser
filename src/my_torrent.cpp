@@ -66,7 +66,9 @@ namespace my_torrent
     }
     void remove_magnetlink(std::string key)
     {
-//        _session->remove_torrent()
+        lt::torrent_handle torrent_handle = _torrent_handle_map[key];
+        _session->remove_torrent(torrent_handle);
+        _torrent_handle_map.erase(key);
     }
 
     void add_magnetlink(std::string key, std::string magnetlink)
