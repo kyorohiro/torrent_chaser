@@ -238,6 +238,7 @@ namespace my_server
 
                 for (auto i : targetInfos)
                 {
+                    std::cout << "infohash : "<<i->infohash <<std::endl;
                     o["list"].push_back({
                         {"id", i->id},
                         {"infohash", i->infohash},

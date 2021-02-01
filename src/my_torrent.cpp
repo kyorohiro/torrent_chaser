@@ -18,15 +18,17 @@
 
 //
 #include <my_ip_country_detector.hpp>
+#include <my_base_encode.hpp>
 
 namespace my_torrent
 {
     int _upload_max = -1;
     int _download_max = -1;
     std::shared_ptr<lt::session> _session;
+    //std::map<std::string, std::
 
     std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
-    //std::map<std::string, std::vector<std::string>> ip_list_map ={};
+    std::map<std::string, lt::torrent_handle> _torrent_handle_map ={};
 
     std::string make_magnet_link(std::vector<char> b)
     {
@@ -62,8 +64,12 @@ namespace my_torrent
 
         //
     }
+    void remove_magnetlink(std::string key)
+    {
+//        _session->remove_torrent()
+    }
 
-    void add_magnetlink(std::string magnetlink)
+    void add_magnetlink(std::string key, std::string magnetlink)
     {
         lt::add_torrent_params torrent_params;
         torrent_params.save_path = ".data"; // save in this dir
@@ -76,6 +82,7 @@ namespace my_torrent
         }
         //torrent_params = lt::parse_magnet_uri(m);
         lt::torrent_handle h = _session->add_torrent(torrent_params);
+        _torrent_handle_map[key] = h;
         if (_upload_max >= 0)
         {
             h.set_upload_limit(_upload_max);
@@ -85,7 +92,7 @@ namespace my_torrent
             h.set_download_limit(_download_max);
         }
     }
-    void add_torrentfile(std::string path)
+    void add_torrentfile(std::string key, std::string path)
     {
         lt::add_torrent_params torrent_params;
         torrent_params.save_path = ".data"; // save in this dir
@@ -99,6 +106,7 @@ namespace my_torrent
         }
         //torrent_params = lt::parse_magnet_uri(m);
         lt::torrent_handle h = _session->add_torrent(torrent_params);
+        _torrent_handle_map[key] = h;
         if (_upload_max >= 0)
         {
             h.set_upload_limit(_upload_max);

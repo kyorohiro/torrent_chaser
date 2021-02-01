@@ -57,6 +57,7 @@ namespace my_db
             std::string sql =
                 "CREATE TABLE TARGET_INFO("
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                "UNIQUE_ID CHAR(40),"
                 "TARGET TEXT UNIQUE,"
                 "INFOHASH TEXT,"
                 "NAME TEXT"
@@ -69,30 +70,42 @@ namespace my_db
             }
         }
     }
-    void insert_target_info(std::string magnetlink, std::string info_hash, std::string name);
+    void insert_target_info(std::string unique_id, std::string magnetlink, std::string info_hash, std::string name);
     void save_torrent_file(const char *binary, int size)
     {
         lt::torrent_info x(binary, size);
-        std::string infohash_hex = my_base_encode::encodeHex(x.info_hash().to_string());
-        std::string path = _torrent_file_root_path+"/"+infohash_hex+".torrent";
+        std::string infohash_hex = my_base_encode::encode_hex(x.info_hash().to_string());
         std::fstream outfile;
-        outfile.open(_torrent_file_root_path+"/"+infohash_hex+".torrent",  std::ios_base::out | std::ios_base::binary);
+
+        std::string unique_id = my_base_encode::generate_sha1_string(std::string(binary,size));
+        std::string path = _torrent_file_root_path+"/"+unique_id+".torrent";
+
+        outfile.open(path,  std::ios_base::out | std::ios_base::binary);
         outfile.write(binary, size);
         outfile.close();
-        insert_target_info(path, infohash_hex, x.name());
+        insert_target_info(unique_id ,path, infohash_hex, x.name());
     }
 
     void insert_magnetlink(std::string magnetlink)
     {
         auto link =lt::parse_magnet_uri(magnetlink);
-        std::string infohash_hex = my_base_encode::encodeHex(link.info_hashes.get_best().to_string());
-       insert_target_info(magnetlink, infohash_hex,"");
+
+        std::string unique_id = my_base_encode::generate_sha1_string(magnetlink);
+        std::string path = _torrent_file_root_path+"/"+unique_id+".magnetlink";
+        std::fstream outfile;
+        outfile.open(path,  std::ios_base::out | std::ios_base::binary);
+        outfile.write(magnetlink.c_str(), magnetlink.size());
+        outfile.close();
+        std::string infohash_hex = my_base_encode::encode_hex(link.info_hashes.get_best().to_string());
+
+       insert_target_info(unique_id,path, infohash_hex,"");
     }
 
-    void insert_target_info(std::string magnetlink, std::string info_hash, std::string name)
+    void insert_target_info(std::string unique_id, std::string magnetlink, std::string info_hash, std::string name)
     {
         std::stringstream ss;
-        ss << "INSERT INTO TARGET_INFO(TARGET,INFOHASH,NAME) VALUES ("
+        ss << "INSERT INTO TARGET_INFO(UNIQUE_ID,TARGET,INFOHASH,NAME) VALUES ("
+           << "'" << unique_id << "',"
            << "'" << magnetlink << "',"
            <<  "'" << info_hash << "',"
            <<  "'" << name << "'"
@@ -139,7 +152,7 @@ namespace my_db
             {
                 info->id = (argv[i] == NULL ? -1 : std::stoi(argv[i]));
             }
-            if (std::string(azColName[i]) == "TARGET")
+            else if (std::string(azColName[i]) == "TARGET")
             {
                 info->target = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
@@ -151,9 +164,14 @@ namespace my_db
             {
                 info->name = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
+            else if (std::string(azColName[i]) == "UNIQUE_ID" )
+            {
+                info->unique_id = (argv[i] == NULL ? "UNIQUE_ID" : std::string(argv[i]));
+            }
+
         }
         targetInfos->push_back(info);
-        std::cout << "-------------2z" << std::endl;
+        std::cout << "-------------2z"<<info->infohash << std::endl;
         printf("\n");
         return 0;
     }
@@ -161,14 +179,10 @@ namespace my_db
     {
         std::string sql = "SELECT * FROM TARGET_INFO;";
         char *zErrMsg = 0;
-        std::cout << "-------------3a" << std::endl;
         int rc = sqlite3_exec(_db, sql.c_str(), callbackGetMagnetLink, &targetInfos, &zErrMsg);
         if (rc != SQLITE_OK)
         {
-            std::cout << "-------------3b" << std::endl;
-
             throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
         }
-        std::cout << "-------------3c" << std::endl;
     }
 } // namespace my_db

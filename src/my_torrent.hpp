@@ -23,8 +23,8 @@ namespace my_torrent
       std::string make_magnet_link(std::vector<char> binary);
       void setup(std::string bind_address, int upload_max, int download_max);
       void listen();
-      void add_magnetlink(std::string magnetlink);
-      void add_torrentfile(std::string path);
+      void add_magnetlink(std::string key, std::string magnetlink);
+      void add_torrentfile(std::string key, std::string path);
       void extract_ip_list_from_log(std::string log);
 } // namespace my_torrent
 

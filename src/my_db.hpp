@@ -12,6 +12,7 @@
 namespace my_db {
     struct TargetInfo {
         int id;
+        std::string unique_id;
         std::string target;
         std::string infohash;
         std::string name;

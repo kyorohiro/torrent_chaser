@@ -36,25 +36,30 @@ int main(int argc, char *argv[])
 
     // start httpserver
     std::thread server_thread(start_http_server_on_thread, 3);//NULL);
-
-    
+    //server_thread.join();
     //
     // start torrent
     my_torrent::setup("", -1, -1);
 
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
     my_db::get_magnetlink(target_info_list);
-    std::regex re("magnet:.*");    
+    
+    std::regex re(".*\\.magnetlink");    
     for(auto l : target_info_list) {
         if(std::regex_match(l->target,re)){
-            my_torrent::add_magnetlink(l->target);
+            //
+            {
+                std::fstream input(l->target);
+                std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+                my_torrent::add_magnetlink(l->unique_id, std::string(source.data(),source.size()));
+            }
         } else {
-            my_torrent::add_torrentfile(l->target);
+            my_torrent::add_torrentfile(l->unique_id,l->target);
         }
     }
 
     my_torrent::listen();
-    
+
 
     return 0;
 }
