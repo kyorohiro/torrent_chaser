@@ -8,7 +8,9 @@
 #include <libtorrent/magnet_uri.hpp>
 
 #include <my_base_encode.hpp>
-
+#include<cstdio>
+#include<sstream>
+//
 namespace my_db
 {
     //
@@ -77,28 +79,28 @@ namespace my_db
         std::string infohash_hex = my_base_encode::encode_hex(x.info_hash().to_string());
         std::fstream outfile;
 
-        std::string unique_id = my_base_encode::generate_sha1_string(std::string(binary,size));
-        std::string path = _torrent_file_root_path+"/"+unique_id+".torrent";
+        std::string unique_id = my_base_encode::generate_sha1_string(std::string(binary, size));
+        std::string path = _torrent_file_root_path + "/" + unique_id + ".torrent";
 
-        outfile.open(path,  std::ios_base::out | std::ios_base::binary);
+        outfile.open(path, std::ios_base::out | std::ios_base::binary);
         outfile.write(binary, size);
         outfile.close();
-        insert_target_info(unique_id ,path, infohash_hex, x.name());
+        insert_target_info(unique_id, path, infohash_hex, x.name());
     }
 
     void insert_magnetlink(std::string magnetlink)
     {
-        auto link =lt::parse_magnet_uri(magnetlink);
+        auto link = lt::parse_magnet_uri(magnetlink);
 
         std::string unique_id = my_base_encode::generate_sha1_string(magnetlink);
-        std::string path = _torrent_file_root_path+"/"+unique_id+".magnetlink";
+        std::string path = _torrent_file_root_path + "/" + unique_id + ".magnetlink";
         std::fstream outfile;
-        outfile.open(path,  std::ios_base::out | std::ios_base::binary);
+        outfile.open(path, std::ios_base::out | std::ios_base::binary);
         outfile.write(magnetlink.c_str(), magnetlink.size());
         outfile.close();
         std::string infohash_hex = my_base_encode::encode_hex(link.info_hashes.get_best().to_string());
 
-       insert_target_info(unique_id,path, infohash_hex,"");
+        insert_target_info(unique_id, path, infohash_hex, "");
     }
 
     void insert_target_info(std::string unique_id, std::string magnetlink, std::string info_hash, std::string name)
@@ -107,9 +109,9 @@ namespace my_db
         ss << "INSERT INTO TARGET_INFO(UNIQUE_ID,TARGET,INFOHASH,NAME) VALUES ("
            << "'" << unique_id << "',"
            << "'" << magnetlink << "',"
-           <<  "'" << info_hash << "',"
-           <<  "'" << name << "'"
-           <<");";
+           << "'" << info_hash << "',"
+           << "'" << name << "'"
+           << ");";
 
         std::string sql = ss.str();
         std::cout << sql << std::endl;
@@ -117,22 +119,6 @@ namespace my_db
         int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
         if (rc != SQLITE_OK)
         {
-            throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
-        }
-    }
-
-    void remove_magnetlink(int id)
-    {
-        std::stringstream ss;
-        ss << "DELETE  FROM TARGET_INFO WHERE id = " << id << ";";
-
-        std::string sql = ss.str();
-        std::cout << ">>" << sql << std::endl;
-        char *zErrMsg = 0;
-        int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
-        if (rc != SQLITE_OK)
-        {
-            std::cout << sqlite3_errmsg(_db) << std::endl;
             throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
         }
     }
@@ -164,17 +150,56 @@ namespace my_db
             {
                 info->name = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
-            else if (std::string(azColName[i]) == "UNIQUE_ID" )
+            else if (std::string(azColName[i]) == "UNIQUE_ID")
             {
                 info->unique_id = (argv[i] == NULL ? "UNIQUE_ID" : std::string(argv[i]));
             }
-
         }
         targetInfos->push_back(info);
-        std::cout << "-------------2z"<<info->infohash << std::endl;
+        std::cout << "-------------2z" << info->infohash << std::endl;
         printf("\n");
         return 0;
     }
+    void remove_magnetlink(int id)
+    {
+        //
+        std::vector<std::shared_ptr<TargetInfo>> targetInfos;
+        {
+            std::stringstream ss;
+            ss<< "SELECT * FROM TARGET_INFO WHERE id = "<<id<<";";
+            std::string sql = ss.str();
+            char *zErrMsg = 0;
+            int rc = sqlite3_exec(_db, sql.c_str(), callbackGetMagnetLink, &targetInfos, &zErrMsg);
+            if (rc != SQLITE_OK)
+            {
+                throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
+            }
+        }
+        if(targetInfos.size() == 0){
+            // not found
+            return;
+        }
+        {
+            std::stringstream ss;
+            ss << "DELETE FROM TARGET_INFO WHERE id = " << id << ";";
+
+            std::string sql = ss.str();
+            std::cout << ">>" << sql << std::endl;
+            char *zErrMsg = 0;
+            int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
+            if (rc != SQLITE_OK)
+            {
+                std::cout << sqlite3_errmsg(_db) << std::endl;
+                throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
+            }
+        }
+        {
+            std::string target = targetInfos[0]->target;
+            std::string unique_id = targetInfos[0]->unique_id;
+            std::remove(target.c_str());
+        }
+    }
+
     void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos)
     {
         std::string sql = "SELECT * FROM TARGET_INFO;";

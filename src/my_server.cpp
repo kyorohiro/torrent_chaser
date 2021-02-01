@@ -202,6 +202,7 @@ namespace my_server
             nlohmann::json inp = nlohmann::json::parse(b);
             std::cout << inp.dump() << std::endl;
             nlohmann::json o;
+            //
             my_db::remove_magnetlink(inp["id"].get<int>());
             res.set_content(o.dump(), "text/json");
             res.status = 200;
