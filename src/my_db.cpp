@@ -138,6 +138,30 @@ namespace my_db
         }
     }
 
+
+    void insert_found_ip(std::string name,std::string ip,std::string country,std::string dns,
+            unsigned long int unixtime,std::string info)
+    {
+        std::stringstream ss;
+        ss << "INSERT INTO FOUND_IP(IP,COUNTRY,DNS,UNIXTIME,NAME,INFO) VALUES ("
+           << "'" << ip << "',"
+           << "'" << country << "',"
+           << "'" << dns << "',"
+           << "" << unixtime<< ","
+           << "'" << name << "',"
+           << "'" << info << "'"
+           << ");";
+                
+        std::string sql = ss.str();
+        std::cout << sql << std::endl;
+        char *zErrMsg = 0;
+        int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
+        if (rc != SQLITE_OK)
+        {
+            throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
+        }
+    }
+
     int callbackGetMagnetLink(void *context, int argc, char **argv, char **azColName)
     {
         int i;

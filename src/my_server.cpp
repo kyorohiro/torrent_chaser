@@ -32,6 +32,20 @@ namespace my_server
 
     httplib::Server _http_server;
 
+    void save() {
+        auto ip_list_map = my_torrent::ipinfo_list_map;
+        for(auto i = ip_list_map .begin();i != ip_list_map.end();i++) {
+            for(auto l : i->second) {
+                std::string name = i->first;
+                std::string ip =l->ip_address;
+                std::string country = l->country;
+                std::string domain = l->domain;
+                //
+                //my_db::
+            }            
+        }
+    }
+
     void terminate() {
         _http_server.stop();
     }

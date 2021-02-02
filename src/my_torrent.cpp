@@ -19,6 +19,8 @@
 //
 #include <my_ip_country_detector.hpp>
 #include <my_base_encode.hpp>
+#include <my_db.hpp>
+#include <ctime>
 
 namespace my_torrent
 {
@@ -196,6 +198,10 @@ namespace my_torrent
                     {
                     }
                     ipinfo_list_map[key].push_back(ss);
+                    //
+                    // save to 
+
+                    my_db::insert_found_ip(key,ss->ip_address, ss->country, ss->domain,time(nullptr),"");
                 }
             }
         }
