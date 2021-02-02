@@ -33,7 +33,8 @@ void my_sigint_handler(int s){
     //
     // save ip
     //
-    
+    server_thread.detach();
+    torrent_thread.detach();
     printf("--1--\r\n");
     sleep(1);
     printf("--2--\r\n");
