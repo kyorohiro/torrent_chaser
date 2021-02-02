@@ -27,6 +27,7 @@ namespace my_torrent
       void add_torrentfile(std::string key, std::string path);
       void extract_ip_list_from_log(std::string log);
       void remove_magnetlink(std::string key);
+      void terminate();
 } // namespace my_torrent
 
 #endif

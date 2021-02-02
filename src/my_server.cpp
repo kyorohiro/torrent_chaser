@@ -30,8 +30,11 @@ namespace my_server
     std::string decodeBase64(const std::string &val);
     std::string encodeBase64(const std::string &val);
 
-    httplib::Server http_server;
+    httplib::Server _http_server;
 
+    void terminate() {
+        _http_server.stop();
+    }
     //
     // Basic Authorization
     //
@@ -92,30 +95,30 @@ namespace my_server
         //
         // static file
         //
-        http_server.Get("/", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Get("/", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/index.html", req, res);
         });
 
-        http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/create_magnetlink.html", req, res);
         });
 
-        http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/magnetlink.html", req, res);
         });
 
-        http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/ip_check.html", req, res);
         });
 
-        http_server.Get("/current_ip_info", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Get("/current_ip_info", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/current_ip_info.html", req, res);
         });
 
         //
         // api other
         //
-        http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/get_info_from_ip" << std::endl;
             if (!handleAuthCheck(req, res))
             {
@@ -130,7 +133,7 @@ namespace my_server
             res.status = 200;
         });
 
-        http_server.Post("/api/current_ip/list", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/current_ip/list", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/current_ip/list" << std::endl;
             if (!handleAuthCheck(req, res))
             {
@@ -157,7 +160,7 @@ namespace my_server
         //
         // api magnetlink
         //
-        http_server.Post("/api/magnetlink/add", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/magnetlink/add", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/add_magnet_link" << std::endl;
             if (!handleAuthCheck(req, res))
             {
@@ -172,7 +175,7 @@ namespace my_server
             res.status = 200;
         });
 
-        http_server.Post("/api/torrentfile/add", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/torrentfile/add", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/torrentfile/add" << std::endl;
             if (!handleAuthCheck(req, res))
             {
@@ -196,7 +199,7 @@ namespace my_server
             res.status = 200;
         });
 
-        http_server.Post("/api/magnetlink/remove", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/magnetlink/remove", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/magnetlink/remove" << std::endl;
             if (!handleAuthCheck(req, res))
             {
@@ -213,7 +216,7 @@ namespace my_server
             res.status = 200;
         });
 
-        http_server.Post("/api/magnetlink/create", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/magnetlink/create", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/magnetlink/create" << std::endl;
             if (!handleAuthCheck(req, res))
             {
@@ -228,7 +231,7 @@ namespace my_server
             res.status = 200;
         });
 
-        http_server.Post("/api/magnetlink/list", [](const httplib::Request &req, httplib::Response &res) {
+        _http_server.Post("/api/magnetlink/list", [](const httplib::Request &req, httplib::Response &res) {
             if (!handleAuthCheck(req, res))
             {
                 return;
@@ -261,7 +264,7 @@ namespace my_server
             }
             //my_db::insertMagnetlink(inp["magnetlink"].get<std::string>());
         });
-        http_server.listen(ip.c_str(), port);
+        _http_server.listen(ip.c_str(), port);
     }
 
     //

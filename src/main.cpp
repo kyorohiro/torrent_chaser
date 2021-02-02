@@ -12,17 +12,42 @@
 #include <regex>
 
 //
+#include<ctime>
+#include<signal.h>
+//
 //
 //
 std::string setting_ipv4_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1.CSV";
 std::string setting_ipv6_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1.IPV6.CSV";
 
+// 
+// thread
+std::thread server_thread;
+std::thread torrent_thread;
+
+void my_sigint_handler(int s){
+    printf("Caught signal %d\n",s);
+    my_server::terminate();
+    my_torrent::terminate();
+
+    //
+    // save ip
+    //
+    
+    printf("--1--\r\n");
+    sleep(10);
+    printf("--2--\r\n");
+    exit(1);
+}
 
 void start_http_server_on_thread(int unused)
 {
     my_server::listen("0.0.0.0", 8080, username, password);
 }
 
+void start_torrent_client_on_thread(int unused) {
+    my_torrent::listen();
+}
 
 int main(int argc, char *argv[])
 {
@@ -34,11 +59,8 @@ int main(int argc, char *argv[])
     my_db::setup(".app.db", "./data");
 
 
-    // start httpserver
-    std::thread server_thread(start_http_server_on_thread, 3);//NULL);
-    //server_thread.join();
     //
-    // start torrent
+    // setup torrent
     my_torrent::setup("", -1, -1);
 
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
@@ -58,8 +80,23 @@ int main(int argc, char *argv[])
         }
     }
 
-    my_torrent::listen();
+    // start httpserver
+    server_thread = std::thread (start_http_server_on_thread, 3);//NULL);
 
+    // start torrent
+    torrent_thread = std::thread (start_torrent_client_on_thread, 3);//NULL);
 
+    std::string input_from_console;
+
+    //
+    // input setting from console
+    // 
+    signal (SIGINT, my_sigint_handler);
+    while (true)
+    { 
+        std::cin >> input_from_console;
+    }
+
+//    unsigned long int sec = time(NULL);
     return 0;
 }

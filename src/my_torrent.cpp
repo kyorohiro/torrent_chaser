@@ -30,6 +30,10 @@ namespace my_torrent
     std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
     std::map<std::string, lt::torrent_handle> _torrent_handle_map ={};
 
+    void terminate() {
+        _session->pause();
+    }
+
     std::string make_magnet_link(std::vector<char> b)
     {
         lt::error_code ec;
