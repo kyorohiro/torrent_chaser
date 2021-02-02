@@ -117,6 +117,7 @@ namespace my_torrent
         {
             h.set_download_limit(_download_max);
         }
+        //h.status().na;
     }
     void listen()
     {

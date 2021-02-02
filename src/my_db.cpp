@@ -10,6 +10,8 @@
 #include <my_base_encode.hpp>
 #include<cstdio>
 #include<sstream>
+#include<fstream>
+
 //
 namespace my_db
 {
@@ -173,7 +175,8 @@ namespace my_db
         printf("\n");
         return 0;
     }
-    void remove_magnetlink(int id)
+
+    TargetInfo remove_magnetlink(int id)
     {
         //
         std::vector<std::shared_ptr<TargetInfo>> targetInfos;
@@ -190,7 +193,7 @@ namespace my_db
         }
         if(targetInfos.size() == 0){
             // not found
-            return;
+            return TargetInfo();
         }
         {
             std::stringstream ss;
@@ -211,6 +214,12 @@ namespace my_db
             std::string unique_id = targetInfos[0]->unique_id;
             std::remove(target.c_str());
         }
+        TargetInfo info;
+        info.unique_id = targetInfos[0]->unique_id;
+        info.target = targetInfos[0]->target;
+        info.infohash = targetInfos[0]->infohash;
+        info.name = targetInfos[0]->name;
+        return info;
     }
 
     void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos)

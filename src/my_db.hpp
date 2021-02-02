@@ -20,7 +20,7 @@ namespace my_db {
     void setup(std::string dbpath, std::string torrent_file_root_path);
     TargetInfo  insert_magnetlink(std::string magnetlink);
     void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
-    void remove_magnetlink(int id);    
+    TargetInfo remove_magnetlink(int id);    
     TargetInfo  save_torrent_file(const char *binary, int size);
 }
 

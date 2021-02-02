@@ -207,7 +207,8 @@ namespace my_server
             std::cout << inp.dump() << std::endl;
             nlohmann::json o;
             //
-            my_db::remove_magnetlink(inp["id"].get<int>());
+            auto target_info = my_db::remove_magnetlink(inp["id"].get<int>());
+            my_torrent::remove_magnetlink(target_info.unique_id);
             res.set_content(o.dump(), "text/json");
             res.status = 200;
         });
