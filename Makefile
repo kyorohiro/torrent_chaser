@@ -6,9 +6,9 @@ TARGET = main.out
 TEST_TARGET= test_my_ip_country_detector.out
 CFLAGS = -I./src -DTHREADSAFE=1.
 LIBS =  -ltorrent-rasterbar -lpthread -lsqlite3
-
+LD_LIBRARY_PATH=/usr/local/lib/libtorrent-rasterbar.so
 main.out: ./src/my_ip_country_detector.o ./src/main.o ./src/my_server.o ./src/my_db.o ./src/my_torrent.o ./src/my_base_encode.o
-	LD_LIBRARY_PATH=/usr/local/lib/libtorrent-rasterbar.so $(CC) -o $@ $^ $(LIBDIR) $(LIBS)
+	$(CC) -o $@ $^ $(LIBDIR) $(LIBS)
 
 test_my_ip_country_detector.out: ./src/test_my_ip_country_detector.cpp ./src/my_ip_country_detector.o
 	$(CC) -o $@ $^ $(LIBDIR) $(LIBS) $(CFLAGS)
