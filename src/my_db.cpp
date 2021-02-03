@@ -8,9 +8,9 @@
 #include <libtorrent/magnet_uri.hpp>
 
 #include <my_base_encode.hpp>
-#include<cstdio>
-#include<sstream>
-#include<fstream>
+#include <cstdio>
+#include <sstream>
+#include <fstream>
 
 //
 namespace my_db
@@ -138,20 +138,19 @@ namespace my_db
         }
     }
 
-
-    void insert_found_ip(std::string name,std::string ip,std::string country,std::string dns,
-            unsigned long int unixtime,std::string info)
+    void insert_found_ip(std::string name, std::string ip, std::string country, std::string dns,
+                         unsigned long int unixtime, std::string info)
     {
         std::stringstream ss;
         ss << "INSERT INTO FOUND_IP(IP,COUNTRY,DNS,UNIXTIME,NAME,INFO) VALUES ("
            << "'" << ip << "',"
            << "'" << country << "',"
            << "'" << dns << "',"
-           << "" << unixtime<< ","
+           << "" << unixtime << ","
            << "'" << name << "',"
            << "'" << info << "'"
            << ");";
-                
+
         std::string sql = ss.str();
         std::cout << sql << std::endl;
         char *zErrMsg = 0;
@@ -206,7 +205,7 @@ namespace my_db
         std::vector<std::shared_ptr<TargetInfo>> targetInfos;
         {
             std::stringstream ss;
-            ss<< "SELECT * FROM TARGET_INFO WHERE id = "<<id<<";";
+            ss << "SELECT * FROM TARGET_INFO WHERE id = " << id << ";";
             std::string sql = ss.str();
             char *zErrMsg = 0;
             int rc = sqlite3_exec(_db, sql.c_str(), callbackGetMagnetLink, &targetInfos, &zErrMsg);
@@ -215,7 +214,8 @@ namespace my_db
                 throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
             }
         }
-        if(targetInfos.size() == 0){
+        if (targetInfos.size() == 0)
+        {
             // not found
             return TargetInfo();
         }
@@ -246,7 +246,7 @@ namespace my_db
         return info;
     }
 
-    void get_magnetlink(std::vector<std::shared_ptr<TargetInfo>> &targetInfos)
+    void get_target_info(std::vector<std::shared_ptr<TargetInfo>> &targetInfos)
     {
         std::string sql = "SELECT * FROM TARGET_INFO;";
         char *zErrMsg = 0;
@@ -256,4 +256,70 @@ namespace my_db
             throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
         }
     }
+
+    int callbackGetPeerInfo(void *context, int argc, char **argv, char **azColName)
+    {
+        int i;
+        std::vector<std::shared_ptr<FoundIp>> *targetInfos = (std::vector<std::shared_ptr<FoundIp>> *)context;
+        //std::cout << "callback" << *((std::string*)NotUsed)<<std::endl;
+
+        auto info = std::make_shared<FoundIp>();
+        for (i = 0; i < argc; i++)
+        {
+            printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+            if (std::string(azColName[i]) == "ID")
+            {
+                info->id = (argv[i] == NULL ? -1 : std::stoi(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "DNS")
+            {
+                info->dns = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "UNIXTIME")
+            {
+                info->unixtime= (argv[i] == NULL ? -1 : std::stoi(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "IP")
+            {
+                info->ip = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "COUNTRY")
+            {
+                info->country = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "NAME")
+            {
+                info->name = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "INFO")
+            {
+                info->info = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+        }
+        targetInfos->push_back(info);
+        printf("\n");
+        return 0;
+    }
+
+    void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country)
+    {
+        std::cout << idmin << "," << limit << "," << country << std::endl;
+        std::stringstream ss;
+        ss << "SELECT * FROM FOUND_IP WHERE ID >= " << idmin << " ";
+        if(country.length() != 0) {
+            ss << " AND COUNTRY = '"<< country << "' ";
+        }
+        ss << " LIMIT " << limit << " ";        
+        ss << ";";
+        std::string sql = ss.str();
+        std::cout << sql << std::endl;
+
+        char *zErrMsg = 0;
+        int rc = sqlite3_exec(_db, sql.c_str(), callbackGetPeerInfo, &targetInfos, &zErrMsg);
+        if (rc != SQLITE_OK)
+        {
+            throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
+        }
+    }
+
 } // namespace my_db

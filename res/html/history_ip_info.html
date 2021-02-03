@@ -1,0 +1,88 @@
+<html>
+
+<head>
+    <title>Torrent Chaser</title>
+</head>
+<style>
+    table,
+    th,
+    td {
+        border: 1px solid black;
+    }
+</style>
+
+<body>
+
+    <h1> Get IP INFO  ON DB</h1>
+    <div>
+        <div>
+            <label>id min</label>
+            <input id="idmin_get_history_ip" type="number" value="0"></inpu><br>
+            <label>limit</label>
+            <input id="limit_get_history_ip" type="number" value="100"></inpu><br>
+            <input id="country_get_history_ip" type="text" value="JP"></inpu><br>
+            <button id="btn_get_history_ip">Select</button>
+        </div>
+        <table id="output_get_history_ip" style="border: 1px solid black;">
+            <tr>
+                <td>Id</td>
+                <td>Name</td>
+                <td>IP</td>
+                <td>COUNTRY</td>
+                <td>DOMAIN</td>
+            </tr>
+        </table>
+
+    </div>
+    <script>
+        {
+            let ot = document.getElementById("output_get_history_ip");
+            let bt = document.getElementById("btn_get_history_ip");
+            let input_idmin = document.getElementById("idmin_get_history_ip");
+            let input_limit = document.getElementById("limit_get_history_ip");
+            let input_country = document.getElementById("country_get_history_ip");
+
+            
+
+            function htmlToElem(html) {
+                let temp = document.createElement('template');
+                html = html.trim(); // Never return a space text node as a result
+                temp.innerHTML = html;
+                return temp.content.firstChild;
+            }
+            function reqListener() {
+                console.log(this.responseText)
+                var ret = JSON.parse(this.responseText);
+                console.log(ret);
+                var history = ret["history"];
+                for (i = 0; i < history.length; i++) {
+                    ot.insertAdjacentHTML("beforeend",
+                        "<tr><td>"+history[i]["id"]+"</td>"//
+                        +"<td>" +history[i]["name"]+"</td>" //
+                        +"<td>" +history[i]["ip"]+"</td>" //
+                        +"<td>"+history[i]["country"]+"</td>" //
+                        +"<td>"+history[i]["domain"]+"</td>"//
+                        +"</tr>");
+                }
+                //for (i = 0; i < ret["list"].length; i++) {
+                //    ot.insertAdjacentHTML("beforeend", "<li>[ " + ret["list"][i]["id"] + "]:" + ret["list"][i]["target"] + "</li>");
+                //}
+            }
+            bt.addEventListener("click", function () {
+                console.log("click button")
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                oReq.open("POST", "/api/history_ip/list");
+                oReq.send(JSON.stringify({ 
+                    "idmin": parseInt(input_idmin.value, 10),
+                    "limit": parseInt(input_limit.value, 10),
+                    "country": input_country.value
+                    }));
+            })
+        }
+    </script>
+
+
+</body>
+
+</html>

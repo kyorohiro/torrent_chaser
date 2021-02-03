@@ -27,17 +27,19 @@ std::thread torrent_thread;
 
 void my_sigint_handler(int s){
     printf("Caught signal %d\n",s);
+
+    //
+    // terminate server and torrent client
     my_server::terminate();
     my_torrent::terminate();
 
     //
-    // save ip
-    //
+    // detach thrad
     server_thread.detach();
     torrent_thread.detach();
-    printf("--1--\r\n");
-    sleep(1);
-    printf("--2--\r\n");
+
+    //
+    sleep(3);
     exit(1);
 }
 
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
     my_torrent::setup("", -1, -1);
 
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
-    my_db::get_magnetlink(target_info_list);
+    my_db::get_target_info(target_info_list);
     
     std::regex re(".*\\.magnetlink");    
     for(auto l : target_info_list) {
@@ -80,6 +82,7 @@ int main(int argc, char *argv[])
             my_torrent::add_torrentfile(l->unique_id,l->target);
         }
     }
+    
 
     // start httpserver
     server_thread = std::thread (start_http_server_on_thread, 3);//NULL);

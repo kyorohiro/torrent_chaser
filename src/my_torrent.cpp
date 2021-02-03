@@ -36,6 +36,9 @@ namespace my_torrent
         _session->pause();
     }
 
+    //
+    // make a magnet link from torrentfile
+    //
     std::string make_magnet_link(std::vector<char> b)
     {
         lt::error_code ec;
@@ -68,7 +71,9 @@ namespace my_torrent
         //session_params.set_bool(lt::settings_pack::enable_dht, false);
         _session = std::make_shared<lt::session>(session_params);
 
-        //
+        // 
+        // setting 
+        
     }
     void remove_magnetlink(std::string key)
     {
@@ -112,7 +117,6 @@ namespace my_torrent
             std::cerr << "wrong torrentfile " << path << std::endl;
             throw std::invalid_argument("wrong torrentfile \"" + path + "\"");
         }
-        //torrent_params = lt::parse_magnet_uri(m);
         lt::torrent_handle h = _session->add_torrent(torrent_params);
         _torrent_handle_map[key] = h;
         if (_upload_max >= 0)
@@ -123,8 +127,8 @@ namespace my_torrent
         {
             h.set_download_limit(_download_max);
         }
-        //h.status().na;
     }
+
     void listen()
     {
         while (true)

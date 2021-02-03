@@ -129,6 +129,10 @@ namespace my_server
             _static_file_handle("./res/html/current_ip_info.html", req, res);
         });
 
+        _http_server.Get("/history_ip_info", [](const httplib::Request &req, httplib::Response &res) {
+            _static_file_handle("./res/html/history_ip_info.html", req, res);
+        });
+
         //
         // api other
         //
@@ -147,6 +151,48 @@ namespace my_server
             res.status = 200;
         });
 
+        _http_server.Post("/api/history_ip/list", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "p:/api/history_ip/list" << std::endl;
+            if (!handleAuthCheck(req, res))
+            {
+                return;
+            }
+            
+            try {
+                std::vector<std::shared_ptr<my_db::FoundIp>> targetInfos;
+                std::string b = req.body;
+                std::cout << "--1" << std::endl;
+                nlohmann::json inp = nlohmann::json::parse(b);
+                std::cout << "--2" << std::endl;
+                int idmin = inp["idmin"].get<int>();
+                std::cout << "--3" << std::endl;
+                int limit = inp["limit"].get<int>();
+                std::cout << "--4" << std::endl;
+                std::string country = inp["country"].get<std::string>();
+                std::cout << "--5" << std::endl;
+
+                get_peer_info(targetInfos, idmin, limit, country);
+                
+                nlohmann::json o;
+                for(auto l : targetInfos) {
+                    o["history"].push_back({
+                        {"ip", l->ip},
+                        {"country", l->country},
+                        {"domain", l->dns},
+                        {"name", l->name},
+                        {"unixtime", l->unixtime},
+                        {"id", l->id},
+                        {"info", l->info}
+                    });                    
+                }
+                res.set_content(o.dump(), "text/json");
+                
+                res.status = 200;
+            } catch(std::exception e) {
+                std::cout << "ERR" << std::endl;
+                std::cout << e.what();
+            }
+        });
         _http_server.Post("/api/current_ip/list", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/current_ip/list" << std::endl;
             if (!handleAuthCheck(req, res))
@@ -254,7 +300,7 @@ namespace my_server
             {
                 std::vector<std::shared_ptr<my_db::TargetInfo>> targetInfos;
 
-                my_db::get_magnetlink(targetInfos);
+                my_db::get_target_info(targetInfos);
                 nlohmann::json o;
 
                 o["list"] = nlohmann::json::array();
