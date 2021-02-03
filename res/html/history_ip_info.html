@@ -55,6 +55,7 @@
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
                 var history = ret["history"];
+                ot.innerHTML = ""
                 for (i = 0; i < history.length; i++) {
                     ot.insertAdjacentHTML("beforeend",
                         "<tr><td>"+history[i]["id"]+"</td>"//
