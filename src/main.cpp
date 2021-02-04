@@ -17,8 +17,6 @@
 //
 //
 //
-std::string setting_ipv4_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1.CSV";
-std::string setting_ipv6_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1.IPV6.CSV";
 
 // 
 // thread
@@ -59,12 +57,12 @@ int main(int argc, char *argv[])
     my_ip_country_detector::setup_context(setting_ipv4_cvs_path, setting_ipv6_cvs_path);
 
     // setup table
-    my_db::setup(".app2.db", "./data");
+    my_db::setup(sqlite_db_path, store_folder_path);
 
 
     //
     // setup torrent
-    my_torrent::setup("", -1, -1);
+    my_torrent::setup("", upload_max, download_max);
 
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
     my_db::get_target_info(target_info_list);
