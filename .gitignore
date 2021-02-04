@@ -3,6 +3,8 @@
 hello_libtorrent
 libtorrent
 .app.db
+.app2.db
+.app3.db
 sqlite-autoconf-3340100.tar.gz
 cpptools-linux.vsix
 a.txt
