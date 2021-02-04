@@ -24,15 +24,117 @@
 
 namespace my_torrent
 {
+    //
     int _upload_max = -1;
     int _download_max = -1;
+
+    //
     std::shared_ptr<lt::session> _session;
-    //std::map<std::string, std::
-
     std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
-    std::map<std::string, lt::torrent_handle> _torrent_handle_map ={};
+    std::map<std::string, lt::torrent_handle> _torrent_handle_map = {};
 
-    void terminate() {
+    //
+    bool putIP(std::string key, std::string ip, int port);
+    struct my_torrent_plugin : lt::torrent_plugin
+    {
+        std::string _key;
+        my_torrent_plugin(std::string key)
+        {
+            _key = key;
+        }
+        void on_add_peer(lt::tcp::endpoint const &endpoint, lt::peer_source_flags_t flag1, lt::add_peer_flags_t flag2) override
+        {
+            std::string type = "other";
+            if (lt::peer_info::dht == flag1)
+            {
+                type = "dht";
+            }
+            else if (lt::peer_info::tracker == flag1)
+            {
+                type = "tracker";
+            }
+            else if (lt::peer_info::lsd == flag1)
+            {
+                type = "lsd";
+            }
+            //
+            // found ip
+            std::cout << "[on_add_peer][" << type << "]" << endpoint.address().to_string() << ":" << endpoint.port() << std::endl;
+            auto h = _torrent_handle_map[_key];
+
+            putIP(h.status().name, endpoint.address().to_string(), endpoint.port());
+            //h.name();
+        }
+    };
+
+    struct plugin_creator
+    {
+        std::string _key;
+        plugin_creator(std::string key)
+        {
+            _key = key;
+        }
+
+        std::shared_ptr<lt::torrent_plugin>
+        operator()(lt::torrent_handle const &h, lt::client_data_t)
+        {
+            return std::make_shared<my_torrent_plugin>(_key);
+        }
+    };
+
+    bool putIP(std::string key, std::string ip, int port)
+    {
+
+        std::stringstream ss;
+        ss << ip << ":" << port;
+        std::string ip_with_port = ss.str();
+        if (ipinfo_list_map.count(key) <= 0)
+        {
+            ipinfo_list_map[key] = std::vector<std::shared_ptr<IpInfo>>{};
+        }
+        auto ref = ipinfo_list_map[key];
+        bool alreadyHas = false;
+        for (auto v : ref)
+        {
+            if (v->ip_address == ip_with_port)
+            {
+                alreadyHas = true;
+                break;
+            }
+        }
+        if (!alreadyHas)
+        {
+            std::string country = "-";
+            std::string dns = "";
+            auto ss = std::make_shared<IpInfo>();
+
+            ss->ip_address = ip_with_port;
+            try
+            {
+                ss->country = my_ip_country_detector::find_country_from_ip(ip);
+            }
+            catch (std::exception e)
+            {
+            }
+
+            try
+            {
+                ss->domain = my_ip_country_detector::find_dns_from_ip(ip);
+            }
+            catch (std::exception e)
+            {
+            }
+            ipinfo_list_map[key].push_back(ss);
+            //
+            // save to
+
+            my_db::insert_found_ip(key, ip_with_port, ss->country, ss->domain, time(nullptr), "");
+        }
+
+        return true;
+    }
+    void terminate()
+    {
         _session->pause();
     }
 
@@ -71,9 +173,8 @@ namespace my_torrent
         //session_params.set_bool(lt::settings_pack::enable_dht, false);
         _session = std::make_shared<lt::session>(session_params);
 
-        // 
-        // setting 
-        
+        //
+        // setting
     }
     void remove_magnetlink(std::string key)
     {
@@ -94,8 +195,11 @@ namespace my_torrent
             throw std::invalid_argument("wrong magnet link \"" + magnetlink + "\"");
         }
         //torrent_params = lt::parse_magnet_uri(m);
+        plugin_creator creator(key);
+        torrent_params.extensions.push_back(creator);
         lt::torrent_handle h = _session->add_torrent(torrent_params);
         _torrent_handle_map[key] = h;
+        //
         if (_upload_max >= 0)
         {
             h.set_upload_limit(_upload_max);
@@ -117,8 +221,12 @@ namespace my_torrent
             std::cerr << "wrong torrentfile " << path << std::endl;
             throw std::invalid_argument("wrong torrentfile \"" + path + "\"");
         }
+        plugin_creator creator(key);
+        torrent_params.extensions.push_back(creator);
         lt::torrent_handle h = _session->add_torrent(torrent_params);
         _torrent_handle_map[key] = h;
+        //
+
         if (_upload_max >= 0)
         {
             h.set_upload_limit(_upload_max);
@@ -139,74 +247,12 @@ namespace my_torrent
             lt::state_update_alert *st;
             for (lt::alert *a : alerts)
             {
-                //
+                // log for develop
                 std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
-
-                // extract ip address from log
-                extract_ip_list_from_log(a->message());
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
-    }
-
-    void extract_ip_list_from_log(std::string log)
-    {
-        std::smatch matches;
-        static const std::regex re("(.*):.*add_peer\\(\\).*\\[(.*)\\].*");
-        if (std::regex_match(log, matches, re) && matches.size() == 3)
-        {
-            std::string key = matches[1];
-            std::string value = matches[2];
-            //std::cout << "Matched" << matches[1] << ":" << matches[2]<<std::endl;
-
-            if (ipinfo_list_map.count(key) <= 0)
+            if (0 == alerts.size())
             {
-                ipinfo_list_map[key] = std::vector<std::shared_ptr<IpInfo>>{};
-            }
-
-            auto ref = ipinfo_list_map[key];
-            //not contain
-            std::istringstream f(value);
-            std::string s;
-
-            while (std::getline(f, s, ' '))
-            {
-                bool alreadyHas = false;
-                for (auto v : ref)
-                {
-                    if (v->ip_address == s)
-                    {
-                        alreadyHas = true;
-                        break;
-                    }
-                }
-                if (!alreadyHas)
-                {
-                    std::string country = "-";
-                    std::string dns = "";
-                    auto ss = std::make_shared<IpInfo>();
-                    ss->ip_address = s;
-                    try
-                    {
-                        ss->country = my_ip_country_detector::find_country_from_ip(s);
-                    }
-                    catch (std::exception e)
-                    {
-                    }
-
-                    try
-                    {
-                        ss->domain = my_ip_country_detector::find_dns_from_ip(s);
-                    }
-                    catch (std::exception e)
-                    {
-                    }
-                    ipinfo_list_map[key].push_back(ss);
-                    //
-                    // save to 
-
-                    my_db::insert_found_ip(key,ss->ip_address, ss->country, ss->domain,time(nullptr),"");
-                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             }
         }
     }
