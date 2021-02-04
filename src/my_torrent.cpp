@@ -34,7 +34,7 @@ namespace my_torrent
     std::map<std::string, lt::torrent_handle> _torrent_handle_map = {};
 
     //
-    bool putIP(std::string key, std::string ip, int port);
+    bool _put_ip(std::string key, std::string ip, int port, std::string type, std::string unique_id);
     struct my_torrent_plugin : lt::torrent_plugin
     {
         std::string _key;
@@ -62,7 +62,7 @@ namespace my_torrent
             std::cout << "[on_add_peer][" << type << "]" << endpoint.address().to_string() << ":" << endpoint.port() << std::endl;
             auto h = _torrent_handle_map[_key];
 
-            putIP(h.status().name, endpoint.address().to_string(), endpoint.port());
+            _put_ip(h.status().name, endpoint.address().to_string(), endpoint.port(), type, _key);
             //h.name();
         }
     };
@@ -82,7 +82,7 @@ namespace my_torrent
         }
     };
 
-    bool putIP(std::string key, std::string ip, int port)
+    bool _put_ip(std::string key, std::string ip, int port, std::string type, std::string unique_id)
     {
 
         std::stringstream ss;
@@ -106,12 +106,12 @@ namespace my_torrent
         {
             std::string country = "-";
             std::string dns = "";
-            auto ss = std::make_shared<IpInfo>();
+            auto ip_info = std::make_shared<IpInfo>();
 
-            ss->ip_address = ip_with_port;
+            ip_info->ip_address = ip_with_port;
             try
             {
-                ss->country = my_ip_country_detector::find_country_from_ip(ip);
+                ip_info->country = my_ip_country_detector::find_country_from_ip(ip);
             }
             catch (std::exception e)
             {
@@ -119,16 +119,18 @@ namespace my_torrent
 
             try
             {
-                ss->domain = my_ip_country_detector::find_dns_from_ip(ip);
+                ip_info->domain = my_ip_country_detector::find_dns_from_ip(ip);
             }
             catch (std::exception e)
             {
             }
-            ipinfo_list_map[key].push_back(ss);
+            ip_info->type = type;
+            ip_info->unique_id = unique_id;
+            ipinfo_list_map[key].push_back(ip_info);
             //
             // save to
 
-            my_db::insert_found_ip(key, ip_with_port, ss->country, ss->domain, time(nullptr), "");
+            my_db::insert_found_ip(key, ip_with_port, ip_info->country, ip_info->domain, time(nullptr), "",type, unique_id);
         }
 
         return true;
@@ -248,7 +250,7 @@ namespace my_torrent
             for (lt::alert *a : alerts)
             {
                 // log for develop
-                std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
+                //std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
             }
             if (0 == alerts.size())
             {

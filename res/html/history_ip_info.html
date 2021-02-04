@@ -55,7 +55,8 @@
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
                 var history = ret["history"];
-                ot.innerHTML = ""
+                ot.innerHTML = "<tr><td>Id</td><td>Name</td><td>IP</td> <td>COUNTRY</td><td>DOMAIN</td><td>TYPE</td><td>FILE NAME</td></tr>"
+                
                 for (i = 0; i < history.length; i++) {
                     ot.insertAdjacentHTML("beforeend",
                         "<tr><td>"+history[i]["id"]+"</td>"//
@@ -63,6 +64,8 @@
                         +"<td>" +history[i]["ip"]+"</td>" //
                         +"<td>"+history[i]["country"]+"</td>" //
                         +"<td>"+history[i]["domain"]+"</td>"//
+                        +"<td>"+history[i]["type"]+"</td>"//
+                        +"<td>"+history[i]["unique_id"]+"</td>"//
                         +"</tr>");
                 }
                 //for (i = 0; i < ret["list"].length; i++) {

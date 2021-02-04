@@ -15,7 +15,8 @@ namespace my_torrent
             std::string ip_address;
             std::string country;
             std::string domain;
-
+            std::string unique_id;
+            std::string type;
       };
       extern std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
       //extern std::map<std::string, std::vector<std::string>> ip_list_map;

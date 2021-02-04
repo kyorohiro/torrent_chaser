@@ -24,6 +24,7 @@
                 <td>IP</td>
                 <td>COUNTRY</td>
                 <td>DOMAIN</td>
+                <td>TYPE</td>
             </tr>
         </table>
 
@@ -45,15 +46,21 @@
                 console.log(ret);
                 console.log(".1.")
                 console.log(Object.keys(ret))
-                ot.innerHTML = ""
+                ot.innerHTML = "<tr><td>Name</td><td>IP</td><td>COUNTRY</td><td>DOMAIN</td><td>TYPE</td><td>FILE NAME</td></tr>"
+                
                 for (var l of Object.keys(ret)) {
                     console.log(".2." + l)
                     console.log(".3." + ret[l])
 
                     for (i = 0; i < ret[l].length; i++) {
                         ot.insertAdjacentHTML("beforeend",
-                        //"<tr><td>" + l + "</td><td>" + ret[l][i]["ip"] + "</td>" + "</tr>");
-                          "<tr><td>" + l + "</td><td>" + ret[l][i]["ip"]+"</td>"+"<td>"+ret[l][i]["country"]+"</td>"+"<td>"+ret[l][i]["domain"]+"</td>"+"</tr>");
+                          "<tr><td>" + l + "</td>"
+                          +"<td>" + ret[l][i]["ip"]+"</td>"
+                          +"<td>"+ret[l][i]["country"]+"</td>"
+                          +"<td>"+ret[l][i]["domain"]+"</td>"
+                          +"<td>"+ret[l][i]["type"]+"</td>"
+                          +"<td>"+ret[l][i]["unique_id"]+"</td>"
+                          +"</tr>");
                     }
                 }
                 //for (i = 0; i < ret["list"].length; i++) {

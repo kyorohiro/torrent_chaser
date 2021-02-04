@@ -182,7 +182,10 @@ namespace my_server
                         {"name", l->name},
                         {"unixtime", l->unixtime},
                         {"id", l->id},
-                        {"info", l->info}
+                        {"info", l->info},
+                        {"type", l->type},
+                        {"unique_id", l->unique_id}
+
                     });                    
                 }
                 res.set_content(o.dump(), "text/json");
@@ -208,7 +211,9 @@ namespace my_server
                     o[i->first].push_back({
                         {"ip", l->ip_address},
                         {"country", l->country},
-                        {"domain", l->domain}
+                        {"domain", l->domain},
+                        {"type", l->type},
+                        {"unique_id", l->unique_id},
                     });
                 }
                 

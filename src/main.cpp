@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     my_ip_country_detector::setup_context(setting_ipv4_cvs_path, setting_ipv6_cvs_path);
 
     // setup table
-    my_db::setup(".app.db", "./data");
+    my_db::setup(".app2.db", "./data");
 
 
     //

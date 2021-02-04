@@ -45,7 +45,9 @@ namespace my_db
                 "DNS CHAR(300),"
                 "UNIXTIME INT,"
                 "NAME TEXT,"
-                "INFO TEXT"
+                "INFO TEXT,"
+                "TYPE TEXT,"
+                "UNIQUE_ID TEXT"
                 ")";
             char *zErrMsg = 0;
             int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
@@ -139,16 +141,19 @@ namespace my_db
     }
 
     void insert_found_ip(std::string name, std::string ip, std::string country, std::string dns,
-                         unsigned long int unixtime, std::string info)
+                         unsigned long int unixtime, std::string info, 
+                         std::string type, std::string unique_id)
     {
         std::stringstream ss;
-        ss << "INSERT INTO FOUND_IP(IP,COUNTRY,DNS,UNIXTIME,NAME,INFO) VALUES ("
+        ss << "INSERT INTO FOUND_IP(IP,COUNTRY,DNS,UNIXTIME,NAME,INFO,TYPE,UNIQUE_ID) VALUES ("
            << "'" << ip << "',"
            << "'" << country << "',"
            << "'" << dns << "',"
            << "" << unixtime << ","
            << "'" << name << "',"
-           << "'" << info << "'"
+           << "'" << info << "',"
+           << "'" << type << "',"          
+           << "'" << unique_id << "'"          
            << ");";
 
         std::string sql = ss.str();
@@ -295,6 +300,15 @@ namespace my_db
             {
                 info->info = (argv[i] == NULL ? "" : std::string(argv[i]));
             }
+            else if (std::string(azColName[i]) == "TYPE")
+            {
+                info->type = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "UNIQUE_ID")
+            {
+                info->unique_id = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            
         }
         targetInfos->push_back(info);
         printf("\n");
