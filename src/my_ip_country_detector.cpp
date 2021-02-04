@@ -9,16 +9,12 @@
 #include <regex>
 #include <boost/asio/ip/address.hpp>
 
+//
+// Get country name from ip address
+//
+// data format ref https://lite.ip2location.com/database/ip-country
 namespace my_ip_country_detector
 {
-
-    //
-    // data format ref https://lite.ip2location.com/database/ip-country
-    // "0","281470681743359","-","-"
-    // "281470681743360","281470698520575","-","-"
-    // "281470698520576","281470698520831","US","United States of America"
-    //
-
     std::vector<IpAndCountryInfo> contextV4;
     std::vector<IpAndCountryInfo> contextV6;
 
