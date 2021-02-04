@@ -33,12 +33,11 @@ void my_sigint_handler(int s){
 
     //
     // detach thrad
-    server_thread.detach();
-    torrent_thread.detach();
+    //server_thread.detach();
+    //torrent_thread.detach();
 
     //
-    sleep(3);
-    exit(1);
+    //exit(1);
 }
 
 void start_http_server_on_thread(int unused)
@@ -64,9 +63,13 @@ int main(int argc, char *argv[])
     // setup torrent
     my_torrent::setup("", upload_max, download_max);
 
+    //
+    // load target info(torrent file & magnet link path) from database
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
     my_db::get_target_info(target_info_list);
     
+    //
+    // set 
     std::regex re(".*\\.magnetlink");    
     for(auto l : target_info_list) {
         if(std::regex_match(l->target,re)){
@@ -94,11 +97,7 @@ int main(int argc, char *argv[])
     // input setting from console
     // 
     signal (SIGINT, my_sigint_handler);
-    while (true)
-    { 
-        std::cin >> input_from_console;
-    }
-
-//    unsigned long int sec = time(NULL);
+    server_thread.join();
+    torrent_thread.join();
     return 0;
 }

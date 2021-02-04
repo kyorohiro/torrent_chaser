@@ -27,6 +27,7 @@ namespace my_torrent
     //
     int _upload_max = -1;
     int _download_max = -1;
+    bool _interrupted = false;
 
     //
     std::shared_ptr<lt::session> _session;
@@ -138,6 +139,8 @@ namespace my_torrent
     void terminate()
     {
         _session->pause();
+        // std::this_thread::yield();
+         _interrupted  = true;
     }
 
     //
@@ -241,7 +244,7 @@ namespace my_torrent
 
     void listen()
     {
-        while (true)
+        while (_interrupted ==false)
         {
             std::vector<lt::alert *> alerts;
             _session->pop_alerts(&alerts);

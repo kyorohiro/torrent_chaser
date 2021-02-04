@@ -48,6 +48,7 @@ namespace my_server
 
     void terminate() {
         _http_server.stop();
+        //std::this_thread::yield();
     }
     //
     // Basic Authorization
