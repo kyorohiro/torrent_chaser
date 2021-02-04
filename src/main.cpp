@@ -26,18 +26,8 @@ std::thread torrent_thread;
 void my_sigint_handler(int s){
     printf("Caught signal %d\n",s);
 
-    //
-    // terminate server and torrent client
     my_server::terminate();
     my_torrent::terminate();
-
-    //
-    // detach thrad
-    //server_thread.detach();
-    //torrent_thread.detach();
-
-    //
-    //exit(1);
 }
 
 void start_http_server_on_thread(int unused)
@@ -91,11 +81,8 @@ int main(int argc, char *argv[])
     // start torrent
     torrent_thread = std::thread (start_torrent_client_on_thread, 3);//NULL);
 
-    std::string input_from_console;
-
     //
-    // input setting from console
-    // 
+    // wait 
     signal (SIGINT, my_sigint_handler);
     server_thread.join();
     torrent_thread.join();
