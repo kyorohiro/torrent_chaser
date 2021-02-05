@@ -21,11 +21,11 @@ BOOST_AUTO_TEST_CASE(test2)
 {
     // load a pair informaton about ip and contry
     my_ip_country_detector::setup_context(setting_ipv4_cvs_path,setting_ipv6_cvs_path); 
-    std::string country = my_ip_country_detector::find_dns_from_ip("2400:8500:1302:771:118:27:105:203");
-    std::cout << country << std::endl;
-
+    std::string country = my_ip_country_detector::find_dns_from_ip("2001:4860:4860::8888");
+    std::cout << "'"<< country << "'"<< std::endl;
+    BOOST_CHECK( country== "dns.google");
     country = my_ip_country_detector::find_dns_from_ip("8.8.8.8");
-    std::cout << country << std::endl;
+    std::cout << "'"<< country <<"'"<< std::endl;
+    BOOST_CHECK( country== "dns.google");
 
-    //BOOST_CHECK( country== "-");
 }
