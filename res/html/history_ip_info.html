@@ -20,7 +20,11 @@
             <input id="idmin_get_history_ip" type="number" value="0"></inpu><br>
             <label>limit</label>
             <input id="limit_get_history_ip" type="number" value="100"></inpu><br>
+            <label>country</label>
             <input id="country_get_history_ip" type="text" value="JP"></inpu><br>
+            <label>ip</label>
+            <input id="ip_get_history_ip" type="text" value=""></inpu><br>
+
             <button id="btn_get_history_ip">Select</button>
         </div>
         <table id="output_get_history_ip" style="border: 1px solid black;">
@@ -41,15 +45,16 @@
             let input_idmin = document.getElementById("idmin_get_history_ip");
             let input_limit = document.getElementById("limit_get_history_ip");
             let input_country = document.getElementById("country_get_history_ip");
+            let input_ip = document.getElementById("ip_get_history_ip");
 
             
-
             function htmlToElem(html) {
                 let temp = document.createElement('template');
                 html = html.trim(); // Never return a space text node as a result
                 temp.innerHTML = html;
                 return temp.content.firstChild;
             }
+
             function reqListener() {
                 console.log(this.responseText)
                 var ret = JSON.parse(this.responseText);
@@ -83,7 +88,8 @@
                 oReq.send(JSON.stringify({ 
                     "idmin": parseInt(input_idmin.value, 10),
                     "limit": parseInt(input_limit.value, 10),
-                    "country": input_country.value
+                    "country": input_country.value,
+                    "ip": input_ip.value
                     }));
             })
         }

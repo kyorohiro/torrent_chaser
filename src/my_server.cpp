@@ -149,8 +149,8 @@ namespace my_server
                 int idmin = inp["idmin"].get<int>();
                 int limit = inp["limit"].get<int>();
                 std::string country = inp["country"].get<std::string>();
-
-                get_peer_info(targetInfos, idmin, limit, country);
+                std::string ip = inp["ip"].get<std::string>();
+                get_peer_info(targetInfos, idmin, limit, country, ip);
                 
                 nlohmann::json o;
                 for(auto l : targetInfos) {
