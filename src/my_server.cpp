@@ -126,10 +126,6 @@ namespace my_server
             _static_file_handle("./res/html/ip_check.html", req, res);
         });
 
-        _http_server.Get("/current_ip_info", [](const httplib::Request &req, httplib::Response &res) {
-            _static_file_handle("./res/html/current_ip_info.html", req, res);
-        });
-
         _http_server.Get("/history_ip_info", [](const httplib::Request &req, httplib::Response &res) {
             _static_file_handle("./res/html/history_ip_info.html", req, res);
         });
@@ -197,31 +193,7 @@ namespace my_server
                 std::cout << e.what();
             }
         });
-        _http_server.Post("/api/current_ip/list", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/api/current_ip/list" << std::endl;
-            if (!handleAuthCheck(req, res))
-            {
-                return;
-            }
-            
-            nlohmann::json o;
-            auto ip_list_map = my_torrent::ipinfo_list_map;
-            for(auto i = ip_list_map .begin();i != ip_list_map.end();i++) {
-                o[i->first] = {};
-                for(auto l : i->second) {
-                    o[i->first].push_back({
-                        {"ip", l->ip_address},
-                        {"country", l->country},
-                        {"domain", l->domain},
-                        {"type", l->type},
-                        {"unique_id", l->unique_id},
-                    });
-                }
-                
-            }
-            res.set_content(o.dump(), "text/json");
-            res.status = 200;
-        });
+
 
         //
         // api magnetlink

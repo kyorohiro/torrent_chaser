@@ -41,14 +41,26 @@ namespace my_db
                 "CREATE TABLE FOUND_IP("
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                 "IP CHAR(300),"
+                "PORT INTEGER,"
+                "TYPE CHAR(10),"
                 "COUNTRY CHAR(10),"
                 "DNS CHAR(300),"
                 "UNIXTIME INT,"
                 "NAME TEXT,"
                 "INFO TEXT,"
-                "TYPE TEXT,"
                 "UNIQUE_ID TEXT"
                 ")";
+            char *zErrMsg = 0;
+            int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
+            if (rc != SQLITE_OK)
+            {
+                // throw std::runtime_error("failed to open sqllite" + std::string(sqlite3_errmsg(db)));
+            }
+        }
+        //
+        // INDEX FOUND_IP
+        {
+            std::string sql = "CREATE INDEX TYPE_AND_IP ON FOUND_IP(IP,PORT,TYPE)";
             char *zErrMsg = 0;
             int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
             if (rc != SQLITE_OK)
@@ -140,13 +152,14 @@ namespace my_db
         }
     }
 
-    void insert_found_ip(std::string name, std::string ip, std::string country, std::string dns,
+    void insert_found_ip(std::string name, std::string ip, int port, std::string country, std::string dns,
                          unsigned long int unixtime, std::string info, 
                          std::string type, std::string unique_id)
     {
         std::stringstream ss;
-        ss << "INSERT INTO FOUND_IP(IP,COUNTRY,DNS,UNIXTIME,NAME,INFO,TYPE,UNIQUE_ID) VALUES ("
+        ss << "INSERT INTO FOUND_IP(IP,PORT,COUNTRY,DNS,UNIXTIME,NAME,INFO,TYPE,UNIQUE_ID) VALUES ("
            << "'" << ip << "',"
+           << port <<","
            << "'" << country << "',"
            << "'" << dns << "',"
            << "" << unixtime << ","
@@ -287,6 +300,10 @@ namespace my_db
             else if (std::string(azColName[i]) == "IP")
             {
                 info->ip = (argv[i] == NULL ? "" : std::string(argv[i]));
+            }
+            else if (std::string(azColName[i]) == "PORT")
+            {
+                info->port = (argv[i] == NULL ? -1 : std::stoi(argv[i]));
             }
             else if (std::string(azColName[i]) == "COUNTRY")
             {

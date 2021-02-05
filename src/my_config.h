@@ -8,7 +8,7 @@ std::string password = "<YOUR PASSWORD>";
 std::string setting_ipv4_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1.CSV";
 std::string setting_ipv6_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1.IPV6.CSV";
 
-std::string sqlite_db_path = ".app2.db";
+std::string sqlite_db_path = ".app3.db";
 std::string store_folder_path = "./data";
 
 int upload_max =-1;

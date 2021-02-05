@@ -131,7 +131,7 @@ namespace my_torrent
             //
             // save to
 
-            my_db::insert_found_ip(key, ip_with_port, ip_info->country, ip_info->domain, time(nullptr), "",type, unique_id);
+            my_db::insert_found_ip(key, ip, port, ip_info->country, ip_info->domain, time(nullptr), "",type, unique_id);
         }
 
         return true;

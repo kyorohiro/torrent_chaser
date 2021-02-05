@@ -22,6 +22,7 @@ namespace my_db {
     struct FoundIp {
         int id;
         std::string ip;
+        int port;
         std::string country;
         std::string dns;
         unsigned long int unixtime;
@@ -38,7 +39,7 @@ namespace my_db {
 
     TargetInfo remove_magnetlink(int id);    
     TargetInfo  save_torrent_file(const char *binary, int size);
-    void insert_found_ip(std::string name,std::string ip,std::string country,std::string dns,
+    void insert_found_ip(std::string name,std::string ip, int port, std::string country,std::string dns,
             unsigned long int unixtime,std::string info, std::string type, std::string unique_id);      
     
 }
