@@ -145,15 +145,10 @@ namespace my_server
             try {
                 std::vector<std::shared_ptr<my_db::FoundIp>> targetInfos;
                 std::string b = req.body;
-                std::cout << "--1" << std::endl;
                 nlohmann::json inp = nlohmann::json::parse(b);
-                std::cout << "--2" << std::endl;
                 int idmin = inp["idmin"].get<int>();
-                std::cout << "--3" << std::endl;
                 int limit = inp["limit"].get<int>();
-                std::cout << "--4" << std::endl;
                 std::string country = inp["country"].get<std::string>();
-                std::cout << "--5" << std::endl;
 
                 get_peer_info(targetInfos, idmin, limit, country);
                 
@@ -161,6 +156,7 @@ namespace my_server
                 for(auto l : targetInfos) {
                     o["history"].push_back({
                         {"ip", l->ip},
+                        {"port", l->port},
                         {"country", l->country},
                         {"domain", l->dns},
                         {"name", l->name},

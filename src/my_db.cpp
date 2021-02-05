@@ -13,18 +13,24 @@
 #include <fstream>
 
 //
+#include <ctime>
+
+//
 namespace my_db
 {
     //
     sqlite3 *_db;
     std::string _torrent_file_root_path;
+    int _the_range_of_time; // Number of searches after the specified number of seconds 
 
     int callback(void *NotUsed, int argc, char **argv, char **azColName)
     {
         return 0;
     }
-    void setup(std::string dbpath, std::string torrent_file_root_path)
+
+    void setup(std::string dbpath, std::string torrent_file_root_path, int the_range_of_time)
     {
+        _the_range_of_time = the_range_of_time;
         _torrent_file_root_path = torrent_file_root_path;
         {
             int rc = sqlite3_open(dbpath.c_str(), &_db);
@@ -339,10 +345,13 @@ namespace my_db
     }
     bool alreadtExist(std::string ip, int port, std::string type) {
         std::stringstream ss;
+        time_t curret_unix_time = time(nullptr);
         ss << "SELECT * FROM FOUND_IP WHERE "
         << "IP = '" << ip << "'" //
         << "AND PORT = " << port << "" //
-        << "AND TYPE = '" << type << "'"; //
+        << "AND TYPE = '" << type << "'"
+        << "AND UNIXTIME >= " << (curret_unix_time-_the_range_of_time)
+        ; //
 
         int count= 0;
         std::string sql = ss.str();

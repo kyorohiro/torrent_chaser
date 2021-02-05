@@ -1,10 +1,9 @@
 #ifndef _MY_DB
 #define _MY_DB
 
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 #include <memory>
-
 
 //
 // Stock peer's ip infomation and target metainfo on SQLITE DB
@@ -32,7 +31,7 @@ namespace my_db {
         std::string unique_id;
     };
 
-    void setup(std::string dbpath, std::string torrent_file_root_path);
+    void setup(std::string dbpath, std::string torrent_file_root_path, int the_range_of_time);
     TargetInfo  insert_magnetlink(std::string magnetlink);
     void get_target_info(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
     void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country);

@@ -55,17 +55,20 @@
                 var ret = JSON.parse(this.responseText);
                 console.log(ret);
                 var history = ret["history"];
-                ot.innerHTML = "<tr><td>Id</td><td>Name</td><td>IP</td> <td>COUNTRY</td><td>DOMAIN</td><td>TYPE</td><td>FILE NAME</td></tr>"
+                ot.innerHTML = "<tr><td>Id</td><td>Name</td><td>IP</td> <td>Port</td> <td>COUNTRY</td><td>DOMAIN</td><td>TYPE</td><td>FILE NAME</td><td>DATE</td></tr>"
                 
                 for (i = 0; i < history.length; i++) {
+                    let dateTime = new Date(history[i]["unixtime"] * 1000);
                     ot.insertAdjacentHTML("beforeend",
                         "<tr><td>"+history[i]["id"]+"</td>"//
                         +"<td>" +history[i]["name"]+"</td>" //
                         +"<td>" +history[i]["ip"]+"</td>" //
+                        +"<td>" +history[i]["port"]+"</td>" //
                         +"<td>"+history[i]["country"]+"</td>" //
                         +"<td>"+history[i]["domain"]+"</td>"//
                         +"<td>"+history[i]["type"]+"</td>"//
                         +"<td>"+history[i]["unique_id"]+"</td>"//
+                        +"<td>"+dateTime.toString()+"</td>"//
                         +"</tr>");
                 }
                 //for (i = 0; i < ret["list"].length; i++) {
