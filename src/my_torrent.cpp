@@ -239,7 +239,7 @@ namespace my_torrent
             for (lt::alert *a : alerts)
             {
                 // log for develop
-                //std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
+                std::cout << "[" << a->type() << "](" << a->what() << ") " << a->message() << std::endl;
             }
             if (0 == alerts.size())
             {
