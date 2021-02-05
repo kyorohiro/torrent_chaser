@@ -101,11 +101,11 @@ namespace my_ip_country_detector
     }
     std::string find_country_from_ipv4(std::string ip)
     {
-        std::cout << "(9) <<" << ip << std::endl;
+        //std::cout << "(9) <<" << ip << std::endl;
         boost::asio::ip::address_v4 i = boost::asio::ip::address_v4::from_string(ip.c_str());
-        std::cout << "(9) <<" << i.to_ulong() << std::endl;
+        //std::cout << "(9) <<" << i.to_ulong() << std::endl;
 
-        std::cout << boost::multiprecision::uint128_t(i.to_ulong()) << std::endl;
+        //std::cout << boost::multiprecision::uint128_t(i.to_ulong()) << std::endl;
         return find_country_from_ipv4(boost::multiprecision::uint128_t(i.to_ulong()));
     }
 
@@ -166,8 +166,8 @@ namespace my_ip_country_detector
     {
         int min = 0;
         int max = ips.size() - 1;
-        std::cout << "(19) <<" << ip << "m:" << min << "s:" << max << std::endl;
-        std::cout << "::" << ips[min].end << std::endl;
+        //std::cout << "(19) <<" << ip << "m:" << min << "s:" << max << std::endl;
+        //std::cout << "::" << ips[min].end << std::endl;
         if (ips[min].begin <= ip && ip <= ips[min].end)
         {
             return ips[min];
@@ -185,7 +185,7 @@ namespace my_ip_country_detector
             IpAndCountryInfo i = ips[index];
             if (i.begin <= ip && ip <= i.end)
             {
-                std::cout << ":f:" << i.country_name << "::" << std::endl;
+                //std::cout << ":f:" << i.country_name << "::" << std::endl;
                 return i;
             }
             if (ip < i.begin)
@@ -196,7 +196,7 @@ namespace my_ip_country_detector
             {
                 min = index;
             }
-            std::cout << "::" << index << "::" << i.begin << "<" << ip << "<" << i.end << "::" << std::endl;
+            //std::cout << "::" << index << "::" << i.begin << "<" << ip << "<" << i.end << "::" << std::endl;
         } while (prev_index != index);
 
         //for(ipinfo i : ips) {
