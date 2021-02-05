@@ -14,4 +14,4 @@ const std::string store_folder_path = "./data";
 const int upload_max =-1;
 const int download_max =-1;
 
-const int the_range_of_time = 60*5; // Number of searches after the specified number of seconds 
+const int the_range_of_time = 3*60*60; // Number of searches after the specified number of seconds 

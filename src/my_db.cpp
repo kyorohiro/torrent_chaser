@@ -347,16 +347,16 @@ namespace my_db
         std::stringstream ss;
         time_t curret_unix_time = time(nullptr);
         ss << "SELECT * FROM FOUND_IP WHERE "
-        << "IP = '" << ip << "'" //
-        << "AND PORT = " << port << "" //
-        << "AND TYPE = '" << type << "'"
-        << "AND UNIXTIME >= " << (curret_unix_time-_the_range_of_time)
+        << " IP = '" << ip << "' " //
+        << " AND PORT = " << port << " " //
+        << " AND TYPE = '" << type << "' "
+        << " AND UNIXTIME >= " << (curret_unix_time-_the_range_of_time)
         ; //
-
+    
         int count= 0;
         std::string sql = ss.str();
         char *zErrMsg = 0;
-        
+        //std::cout << "[DEBUG KY]" << sql << std::endl;
         int rc = sqlite3_exec(_db, sql.c_str(), callbackGetPeerInfoForExistCheck, &count, &zErrMsg);
         if (rc != SQLITE_OK)
         {
