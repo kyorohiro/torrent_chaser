@@ -66,7 +66,7 @@ namespace my_db
         //
         // INDEX FOUND_IP
         {
-            std::string sql = "CREATE INDEX TYPE_AND_IP ON FOUND_IP(IP,PORT,TYPE)";
+            std::string sql = "CREATE INDEX TYPE_AND_IP ON FOUND_IP(IP,PORT,TYPE,UNIXTIME)";
             char *zErrMsg = 0;
             int rc = sqlite3_exec(_db, sql.c_str(), callback, 0, &zErrMsg);
             if (rc != SQLITE_OK)
