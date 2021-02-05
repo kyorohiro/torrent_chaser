@@ -356,14 +356,14 @@ namespace my_db
         int count= 0;
         std::string sql = ss.str();
         char *zErrMsg = 0;
-        std::cout << "[DEBUG KY] 0:" << sql << std::endl;
+        //std::cout << "[DEBUG KY] 0:" << sql << std::endl;
         int rc = sqlite3_exec(_db, sql.c_str(), callbackGetPeerInfoForExistCheck, &count, &zErrMsg);
         if (rc != SQLITE_OK)
         {
             //throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
             return false;
         }
-        std::cout << "[DEBUG KY] 1:" << count << std::endl;
+        //std::cout << "[DEBUG KY] 1:" << count << std::endl;
         return count > 0;
     }
     void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country)
