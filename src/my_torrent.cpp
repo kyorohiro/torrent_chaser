@@ -31,7 +31,6 @@ namespace my_torrent
 
     //
     std::shared_ptr<lt::session> _session;
-    std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
     std::map<std::string, lt::torrent_handle> _torrent_handle_map = {};
 
     //
@@ -89,20 +88,7 @@ namespace my_torrent
         std::stringstream ss;
         ss << ip << ":" << port;
         std::string ip_with_port = ss.str();
-        if (ipinfo_list_map.count(key) <= 0)
-        {
-            ipinfo_list_map[key] = std::vector<std::shared_ptr<IpInfo>>{};
-        }
-        auto ref = ipinfo_list_map[key];
         bool alreadyHas = false;
-        for (auto v : ref)
-        {
-            if (v->ip_address == ip_with_port)
-            {
-                alreadyHas = true;
-                break;
-            }
-        }
         if (!alreadyHas)
         {
             std::string country = "-";
@@ -127,7 +113,6 @@ namespace my_torrent
             }
             ip_info->type = type;
             ip_info->unique_id = unique_id;
-            ipinfo_list_map[key].push_back(ip_info);
             //
             // save to
 

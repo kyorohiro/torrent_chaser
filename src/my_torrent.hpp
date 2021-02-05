@@ -18,8 +18,6 @@ namespace my_torrent
             std::string unique_id;
             std::string type;
       };
-      extern std::map<std::string, std::vector<std::shared_ptr<IpInfo>>> ipinfo_list_map;
-      //extern std::map<std::string, std::vector<std::string>> ip_list_map;
 
       std::string make_magnet_link(std::vector<char> binary);
       void setup(std::string bind_address, int upload_max, int download_max);
