@@ -41,7 +41,7 @@ namespace my_db {
     TargetInfo  save_torrent_file(const char *binary, int size);
     void insert_found_ip(std::string name,std::string ip, int port, std::string country,std::string dns,
             unsigned long int unixtime,std::string info, std::string type, std::string unique_id);      
-    
+     bool alreadtExist(std::string ip, int port, std::string type);
 }
 
 #endif

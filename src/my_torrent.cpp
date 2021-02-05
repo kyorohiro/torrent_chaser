@@ -115,8 +115,9 @@ namespace my_torrent
             ip_info->unique_id = unique_id;
             //
             // save to
-
-            my_db::insert_found_ip(key, ip, port, ip_info->country, ip_info->domain, time(nullptr), "",type, unique_id);
+            if(!my_db::alreadtExist(ip, port, type)) {
+                my_db::insert_found_ip(key, ip, port, ip_info->country, ip_info->domain, time(nullptr), "",type, unique_id);
+            }
         }
 
         return true;

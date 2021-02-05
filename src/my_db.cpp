@@ -332,6 +332,31 @@ namespace my_db
         return 0;
     }
 
+    int callbackGetPeerInfoForExistCheck(void *context, int argc, char **argv, char **azColName){
+        int *v = (int*) context;
+        *v += argc;
+        return 0;
+    }
+    bool alreadtExist(std::string ip, int port, std::string type) {
+        std::stringstream ss;
+        ss << "SELECT * FROM FOUND_IP WHERE "
+        << "IP = '" << ip << "'" //
+        << "AND PORT = " << port << "" //
+        << "AND TYPE = '" << type << "'"; //
+
+        int count= 0;
+        std::string sql = ss.str();
+        char *zErrMsg = 0;
+        
+        int rc = sqlite3_exec(_db, sql.c_str(), callbackGetPeerInfoForExistCheck, &count, &zErrMsg);
+        if (rc != SQLITE_OK)
+        {
+            //throw std::runtime_error(std::string(sqlite3_errmsg(_db)));
+            return false;
+        }
+
+        return count != 1;
+    }
     void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country)
     {
         std::cout << idmin << "," << limit << "," << country << std::endl;
