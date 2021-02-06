@@ -1,9 +1,15 @@
-#LICENSE
+# Torrent Chaset
+
+Tiny torrent client with monitoring bittorrent network ip.
+
+
+# CODE LICENSE
+
 - httplib.h
   https://github.com/yhirose/cpp-httplib.git
+
 - nlohmann/json.hpp
   https://github.com/nlohmann/json
-
 
 - sqllite
 sqlite-autoconf-3340100.tar.gz

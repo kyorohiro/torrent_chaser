@@ -33,6 +33,6 @@ test_my_ip_country_detector.out: ./src/test_my_ip_country_detector.cpp ./src/my_
 	 $(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
 
 all: $(OBJS) $(TARGET) $(TEST_TARGET)
-
+test: $(OBJS) $(TEST_TARGET)
 clean:
 	rm -f ./src/*.o ./*.out
