@@ -18,14 +18,14 @@ namespace my_ip_country_detector
     std::vector<IpAndCountryInfo> contextV4;
     std::vector<IpAndCountryInfo> contextV6;
 
-    void loadDataFromCVS(std::string filepath, std::vector<IpAndCountryInfo> &output);
+    void load_data_from_cvs(std::string filepath, std::vector<IpAndCountryInfo> &output);
 
     IpAndCountryInfo find(std::vector<IpAndCountryInfo> ips, boost::multiprecision::uint128_t ip);
 
     void setup_context(std::string filepathV4, std::string filepathV6)
     {
-        loadDataFromCVS(filepathV4, contextV4);
-        loadDataFromCVS(filepathV6, contextV6);
+        load_data_from_cvs(filepathV4, contextV4);
+        load_data_from_cvs(filepathV6, contextV6);
     }
 
     std::string find_country_from_ip(std::string ip)
@@ -119,7 +119,7 @@ namespace my_ip_country_detector
         return find(contextV6, ip).country_name;
     }
 
-    void loadDataFromCVS(std::string filepath, std::vector<IpAndCountryInfo> &output)
+    void load_data_from_cvs(std::string filepath, std::vector<IpAndCountryInfo> &output)
     {
         std::fstream f(filepath);
         std::string l;
