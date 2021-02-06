@@ -189,13 +189,11 @@ namespace my_db
     {
         int i;
         std::vector<std::shared_ptr<TargetInfo>> *targetInfos = (std::vector<std::shared_ptr<TargetInfo>> *)context;
-        //std::cout << "callback" << *((std::string*)NotUsed)<<std::endl;
 
-        std::cout << "-------------1z" << std::endl;
         auto info = std::make_shared<TargetInfo>();
         for (i = 0; i < argc; i++)
         {
-            printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+            //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
             if (std::string(azColName[i]) == "ID")
             {
                 info->id = (argv[i] == NULL ? -1 : std::stoi(argv[i]));
@@ -218,8 +216,8 @@ namespace my_db
             }
         }
         targetInfos->push_back(info);
-        std::cout << "-------------2z" << info->infohash << std::endl;
-        printf("\n");
+        //std::cout << "-------------2z" << info->infohash << std::endl;
+        //printf("\n");
         return 0;
     }
 
@@ -290,7 +288,7 @@ namespace my_db
         auto info = std::make_shared<FoundIp>();
         for (i = 0; i < argc; i++)
         {
-            printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+            //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
             if (std::string(azColName[i]) == "ID")
             {
                 info->id = (argv[i] == NULL ? -1 : std::stoi(argv[i]));
@@ -334,7 +332,7 @@ namespace my_db
             
         }
         targetInfos->push_back(info);
-        printf("\n");
+        //printf("\n");
         return 0;
     }
 
