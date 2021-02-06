@@ -20,20 +20,18 @@
 #include <my_ip_country_detector.hpp>
 #include <my_db.hpp>
 #include <my_torrent.hpp>
-
+#include <my_base_encode.hpp>
 
 namespace my_server
 {
     std::string password;
     std::string username;
 
-    std::string decodeBase64(const std::string &val);
-    std::string encodeBase64(const std::string &val);
 
     httplib::Server _http_server;
 
-
-    void terminate() {
+    void terminate()
+    {
         _http_server.stop();
         //std::this_thread::yield();
     }
@@ -57,7 +55,7 @@ namespace my_server
             std::cerr << "my_server_auth err (2)" << std::endl;
             goto AERR;
         }
-        value = decodeBase64(m[1].str());
+        value = my_base_encode::decode_base64(m[1].str());
         std::regex_match(value, m, reB);
         if (m.size() < 2)
         {
@@ -78,8 +76,8 @@ namespace my_server
     }
 
     void _static_file_handle(std::string filepath, const httplib::Request &req, httplib::Response &res)
+    try
     {
-        std::cout << "[request]:" << filepath << std::endl;
         if (!handleAuthCheck(req, res))
         {
             return;
@@ -88,6 +86,11 @@ namespace my_server
         std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
         res.set_content(std::string(source.data(), source.size()), "text/html");
         res.status = 200;
+    }
+    catch (...)
+    {
+        std::cerr << "error at _static_file_handle" << filepath << std::endl;
+        res.status = 501;
     }
 
     void listen(std::string ip, int port, std::string _username, std::string _password)
@@ -98,22 +101,32 @@ namespace my_server
         // static file
         //
         _http_server.Get("/", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "[request]: "
+                      << "/" << std::endl;
             _static_file_handle("./res/html/index.html", req, res);
         });
 
         _http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "[request]: "
+                      << "/" << std::endl;
             _static_file_handle("./res/html/create_magnetlink.html", req, res);
         });
 
         _http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "[request]: "
+                      << "/" << std::endl;
             _static_file_handle("./res/html/magnetlink.html", req, res);
         });
 
         _http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "[request]: "
+                      << "/" << std::endl;
             _static_file_handle("./res/html/ip_check.html", req, res);
         });
 
         _http_server.Get("/history_ip_info", [](const httplib::Request &req, httplib::Response &res) {
+            std::cout << "[request]: "
+                      << "/" << std::endl;
             _static_file_handle("./res/html/history_ip_info.html", req, res);
         });
 
@@ -122,17 +135,25 @@ namespace my_server
         //
         _http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/get_info_from_ip" << std::endl;
-            if (!handleAuthCheck(req, res))
+            try
             {
-                return;
+                if (!handleAuthCheck(req, res))
+                {
+                    return;
+                }
+                std::string b = req.body;
+                nlohmann::json inp = nlohmann::json::parse(b);
+                nlohmann::json o;
+                o["country"] = my_ip_country_detector::find_country_from_ip(inp["ip"].get<std::string>());
+                o["domain"] = my_ip_country_detector::find_dns_from_ip(inp["ip"].get<std::string>());
+                res.set_content(o.dump(), "text/json");
+                res.status = 200;
             }
-            std::string b = req.body;
-            nlohmann::json inp = nlohmann::json::parse(b);
-            nlohmann::json o;
-            o["country"] = my_ip_country_detector::find_country_from_ip(inp["ip"].get<std::string>());
-            o["domain"] = my_ip_country_detector::find_dns_from_ip(inp["ip"].get<std::string>());
-            res.set_content(o.dump(), "text/json");
-            res.status = 200;
+            catch (...)
+            {
+                std::cerr << "error at /api/get_info_from_ip " << req.body << std::endl;
+                res.status = 501;
+            }
         });
 
         _http_server.Post("/api/history_ip/list", [](const httplib::Request &req, httplib::Response &res) {
@@ -141,8 +162,9 @@ namespace my_server
             {
                 return;
             }
-            
-            try {
+
+            try
+            {
                 std::vector<std::shared_ptr<my_db::FoundIp>> targetInfos;
                 std::string b = req.body;
                 nlohmann::json inp = nlohmann::json::parse(b);
@@ -151,105 +173,138 @@ namespace my_server
                 std::string country = inp["country"].get<std::string>();
                 std::string ip = inp["ip"].get<std::string>();
                 get_peer_info(targetInfos, idmin, limit, country, ip);
-                
-                nlohmann::json o;
-                for(auto l : targetInfos) {
-                    o["history"].push_back({
-                        {"ip", l->ip},
-                        {"port", l->port},
-                        {"country", l->country},
-                        {"domain", l->dns},
-                        {"name", l->name},
-                        {"unixtime", l->unixtime},
-                        {"id", l->id},
-                        {"info", l->info},
-                        {"type", l->type},
-                        {"unique_id", l->unique_id}
 
-                    });                    
+                nlohmann::json o;
+                for (auto l : targetInfos)
+                {
+                    o["history"].push_back({{"ip", l->ip},
+                                            {"port", l->port},
+                                            {"country", l->country},
+                                            {"domain", l->dns},
+                                            {"name", l->name},
+                                            {"unixtime", l->unixtime},
+                                            {"id", l->id},
+                                            {"info", l->info},
+                                            {"type", l->type},
+                                            {"unique_id", l->unique_id}
+
+                    });
                 }
                 res.set_content(o.dump(), "text/json");
-                
+
                 res.status = 200;
-            } catch(std::exception e) {
-                std::cout << "ERR" << std::endl;
-                std::cout << e.what();
+            }
+            catch (...)
+            {
+                std::cerr << "error at /api/history_ip/list" << req.body << std::endl;
+                res.status = 501;
             }
         });
-
 
         //
         // api magnetlink
         //
         _http_server.Post("/api/magnetlink/add", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "p:/api/add_magnet_link" << std::endl;
-            if (!handleAuthCheck(req, res))
+            try
             {
-                return;
+                if (!handleAuthCheck(req, res))
+                {
+                    return;
+                }
+                std::string b = req.body;
+                nlohmann::json inp = nlohmann::json::parse(b);
+                nlohmann::json o;
+                my_db::TargetInfo target_info = my_db::insert_magnetlink(inp["magnetlink"].get<std::string>());
+                my_torrent::add_magnetlink(target_info.unique_id, inp["magnetlink"].get<std::string>());
+                res.set_content(o.dump(), "text/json");
+                res.status = 200;
             }
-            std::string b = req.body;
-            nlohmann::json inp = nlohmann::json::parse(b);
-            nlohmann::json o;
-            my_db::TargetInfo target_info = my_db::insert_magnetlink(inp["magnetlink"].get<std::string>());
-            my_torrent::add_magnetlink(target_info.unique_id, inp["magnetlink"].get<std::string>());
-            res.set_content(o.dump(), "text/json");
-            res.status = 200;
+            catch (...)
+            {
+                std::cerr << "error at /api/magnetlink/add" << req.body << std::endl;
+                res.status = 501;
+            }
         });
 
         _http_server.Post("/api/torrentfile/add", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/torrentfile/add" << std::endl;
-            if (!handleAuthCheck(req, res))
+            try
             {
-                return;
+                if (!handleAuthCheck(req, res))
+                {
+                    return;
+                }
+
+                //
+                // get torrentfile binary
+                const char *buffer = req.body.c_str();
+                //std::vector<char> xx(buffer, buffer + req.body.length());
+
+                //
+                // save
+                my_db::TargetInfo target_info = my_db::save_torrent_file(buffer, req.body.length());
+                my_torrent::add_torrentfile(target_info.unique_id, target_info.target);
+
+                //
+                //
+                nlohmann::json o;
+                res.set_content(o.dump(), "text/json");
+                res.status = 200;
             }
-
-            //
-            // get torrentfile binary
-            const char *buffer = req.body.c_str();
-            //std::vector<char> xx(buffer, buffer + req.body.length());
-
-            //
-            // save 
-            my_db::TargetInfo target_info = my_db::save_torrent_file(buffer, req.body.length());
-            my_torrent::add_torrentfile(target_info.unique_id, target_info.target);
-
-            //
-            //
-            nlohmann::json o;
-            res.set_content(o.dump(), "text/json");
-            res.status = 200;
+            catch (...)
+            {
+                std::cerr << "error at /api/torrentfile/add" << req.body << std::endl;
+                res.status = 501;
+            }
         });
 
         _http_server.Post("/api/magnetlink/remove", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/magnetlink/remove" << std::endl;
-            if (!handleAuthCheck(req, res))
+            try
             {
-                return;
+                if (!handleAuthCheck(req, res))
+                {
+                    return;
+                }
+                std::string b = req.body;
+                nlohmann::json inp = nlohmann::json::parse(b);
+                std::cout << inp.dump() << std::endl;
+                nlohmann::json o;
+                //
+                auto target_info = my_db::remove_magnetlink(inp["id"].get<int>());
+                my_torrent::remove_magnetlink(target_info.unique_id);
+                res.set_content(o.dump(), "text/json");
+                res.status = 200;
             }
-            std::string b = req.body;
-            nlohmann::json inp = nlohmann::json::parse(b);
-            std::cout << inp.dump() << std::endl;
-            nlohmann::json o;
-            //
-            auto target_info = my_db::remove_magnetlink(inp["id"].get<int>());
-            my_torrent::remove_magnetlink(target_info.unique_id);
-            res.set_content(o.dump(), "text/json");
-            res.status = 200;
+            catch (...)
+            {
+                std::cerr << "error at /api/magnetlink/remove" << req.body << std::endl;
+                res.status = 501;
+            }
         });
 
         _http_server.Post("/api/magnetlink/create", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "call /api/magnetlink/create" << std::endl;
-            if (!handleAuthCheck(req, res))
+            try
             {
-                return;
+                if (!handleAuthCheck(req, res))
+                {
+                    return;
+                }
+                const char *buffer = req.body.c_str();
+                std::vector<char> xx(buffer, buffer + req.body.length());
+                std::string link = my_torrent::make_magnet_link(xx);
+                nlohmann::json o;
+                o["magnetlink"] = link;
+                res.set_content(o.dump(), "text/json");
+                res.status = 200;
             }
-            const char *buffer = req.body.c_str();
-            std::vector<char> xx(buffer, buffer + req.body.length());
-            std::string link = my_torrent::make_magnet_link(xx);
-            nlohmann::json o;
-            o["magnetlink"] = link;
-            res.set_content(o.dump(), "text/json");
-            res.status = 200;
+            catch (...)
+            {
+                std::cerr << "error at /api/magnetlink/create" << req.body << std::endl;
+                res.status = 501;
+            }
         });
 
         _http_server.Post("/api/magnetlink/list", [](const httplib::Request &req, httplib::Response &res) {
@@ -268,7 +323,7 @@ namespace my_server
 
                 for (auto i : targetInfos)
                 {
-                    std::cout << "infohash : "<<i->infohash <<std::endl;
+                    std::cout << "infohash : " << i->infohash << std::endl;
                     o["list"].push_back({
                         {"id", i->id},
                         {"infohash", i->infohash},
@@ -279,41 +334,13 @@ namespace my_server
                 res.set_content(o.dump(), "text/json");
                 res.status = 200;
             }
-            catch (std::exception e)
+            catch (...)
             {
-                std::cout << e.what() << std::endl;
+                std::cerr << "error at /api/magnetlink/list" << req.body << std::endl;
+                res.status = 501;
             }
-            //my_db::insertMagnetlink(inp["magnetlink"].get<std::string>());
         });
         _http_server.listen(ip.c_str(), port);
     }
 
-    //
-    // ref
-    //   - https://code-examples.net/en/q/6ba0e2
-    //   - https://stackoverflow.com/questions/7053538/how-do-i-encode-a-string-to-base64-using-only-boost
-    //
-    std::string decodeBase64(const std::string &val)
-    {
-        using namespace boost::archive::iterators;
-        using base64_txt = boost::archive::iterators::transform_width<
-            binary_from_base64<std::string::const_iterator>, 8, 6>;
-        std::stringstream ss;
-
-        std::copy(
-            base64_txt(val.c_str()),
-            base64_txt(val.c_str() + val.size()),
-            ostream_iterator<char>(ss));
-
-        return ss.str();
-    }
-
-    std::string encodeBase64(const std::string &val)
-    {
-        using base64_txt = boost::archive::iterators::base64_from_binary<
-            boost::archive::iterators::transform_width<
-                std::string::const_iterator, 6, 8>>;
-        auto tmp = std::string(base64_txt(std::begin(val)), base64_txt(std::end(val)));
-        return tmp.append((3 - val.size() % 3) % 3, '=');
-    }
 } // namespace my_server
