@@ -29,6 +29,7 @@ namespace my_torrent
     int _upload_max = -1;
     int _download_max = -1;
     bool _interrupted = false;
+    std::string _downloaded_file_path = ".data";
 
     //
     std::shared_ptr<lt::session> _session;
@@ -47,6 +48,7 @@ namespace my_torrent
         std::string _name;
         bool _haveFlagToDB = false;
         bool _connectFlagToDB = false;
+        
         my_peer_plugin(std::string key, std::string name, std::string ip, int port)
         {
             _key = key;
@@ -245,8 +247,9 @@ namespace my_torrent
     // if upload_max is -1 mean unset upload max
     // if download_max is -1 mean unset download max
     //
-    void setup(std::string bind_address, int upload_max, int download_max)
+    void setup(std::string bind_address, int upload_max, int download_max,std::string downloaded_file_path)
     {
+        _downloaded_file_path = downloaded_file_path;
         //
         // create session
         //
@@ -299,7 +302,7 @@ namespace my_torrent
     void add_torrentfile(std::string key, std::string path)
     {
         lt::add_torrent_params torrent_params;
-        torrent_params.save_path = ".data"; // save in this dir
+        torrent_params.save_path = _downloaded_file_path;//".data"; // save in this dir
         lt::error_code ec;
         torrent_params.ti = std::make_shared<lt::torrent_info>(path);
 

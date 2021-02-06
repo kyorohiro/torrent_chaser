@@ -41,7 +41,7 @@ void my_sigint_handler(int s)
 
 void start_http_server_on_thread(int unused)
 {
-    my_server::listen(http_server_ip, http_server_port, username, password);
+    my_server::listen(http_server_ip, http_server_port, username, password, store_folder_path, downloaded_folder_path);
 }
 
 void start_torrent_client_on_thread(int unused)
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     //
     // setup torrent
-    my_torrent::setup(torrent_bind_address, upload_max, download_max);
+    my_torrent::setup(torrent_bind_address, upload_max, download_max, downloaded_folder_path);
 
     //
     // load target info(torrent file & magnet link path) from database

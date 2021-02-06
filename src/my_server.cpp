@@ -24,13 +24,17 @@
 #include <boost/filesystem.hpp>
 namespace my_server
 {
-    std::string password;
-    std::string username;
+    std::string _password;
+    std::string _username;
+    std::string _target_file_path;
+    std::string _downloaded_file_path;
 
     httplib::Server _http_server;
-void file_manager(std::string base_url_path, std::string base_file_path, const httplib::Request &req, httplib::Response &res);
+    bool terminated = false;
+    void file_manager(std::string base_url_path, std::string base_file_path, const httplib::Request &req, httplib::Response &res);
     void terminate()
     {
+        terminated  = true;
         _http_server.stop();
         //std::this_thread::yield();
     }
@@ -61,12 +65,12 @@ void file_manager(std::string base_url_path, std::string base_file_path, const h
             std::cerr << "my_server_auth err (3)" << value << std::endl;
             goto AERR;
         }
-        if (m[1] != username || m[2] != password)
+        if (m[1] != _username || m[2] != _password)
         {
             std::cerr << "my_server_auth err (4)" << value << std::endl;
             goto AERR;
         }
-        std::cout << username << ":" << password << std::endl;
+        std::cout << _username << ":" << _password << std::endl;
         return true;
     AERR:
         res.set_header("WWW-Authenticate", "Basic realm=\"..\", charset=\"UTF-8\"");
@@ -94,10 +98,13 @@ void file_manager(std::string base_url_path, std::string base_file_path, const h
 
     int is_regular_file(const char *path);
 
-    void listen(std::string ip, int port, std::string _username, std::string _password)
+    void listen(std::string ip, int port, std::string username, std::string password,std::string target_file_path,std::string downloaded_file_path)
     {
-        username = _username;
-        password = _password;
+        _username = username;
+        _password = password;
+        _target_file_path = target_file_path;
+        _downloaded_file_path = downloaded_file_path;
+
         //
         // static file
         //
@@ -350,10 +357,10 @@ void file_manager(std::string base_url_path, std::string base_file_path, const h
         // direct file tree
         //
         _http_server.Get("/downloaded/.*", [](const httplib::Request &req, httplib::Response &res) {
-            file_manager("downloaded", "./.data", req, res);
+            file_manager("downloaded", _target_file_path/*"./.data"*/, req, res);
         });
         _http_server.Get("/target/.*", [](const httplib::Request &req, httplib::Response &res) {
-            file_manager("target", "./data", req, res);
+            file_manager("target", _target_file_path/* "./data"*/, req, res);
         });
         //
 
@@ -409,7 +416,7 @@ void file_manager(std::string base_url_path, std::string base_file_path, const h
                     int buffer_size = 1024 * 256;
                     char *buffer = new char[buffer_size];
                     std::ifstream input(path);
-                    while (!input.eof())
+                    while (!input.eof() && !terminated)
                     {
                         input.read(buffer, buffer_size);
                         int length = input.gcount();
@@ -434,7 +441,7 @@ void file_manager(std::string base_url_path, std::string base_file_path, const h
             std::smatch smatch3;
             for (; itr != end_itr; ++itr)
             {
-                ss << itr->path().c_str() << "<br>";
+                //ss << itr->path().c_str() << "<br>";
                 std::string filename = itr->path().filename().string();
                 ss << "<a href=\""
                    << "/" + base_url_path + "/" << my_base_encode::encode_url(path + (path.size() == 0 ? "" : "/") + filename, false, true) << "\">" << filename << "</a><br>";

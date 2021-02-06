@@ -10,6 +10,7 @@ const std::string setting_ipv6_cvs_path = "./res/ip2country/IP2LOCATION-LITE-DB1
 
 const std::string sqlite_db_path = ".app3.db";
 const std::string store_folder_path = "./data";
+const std::string downloaded_folder_path = "./.data";
 
 const int upload_max = -1;
 const int download_max = -1;
