@@ -27,7 +27,6 @@ namespace my_server
     std::string password;
     std::string username;
 
-
     httplib::Server _http_server;
 
     void terminate()
@@ -108,25 +107,25 @@ namespace my_server
 
         _http_server.Get("/create_magnetlink", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "[request]: "
-                      << "/" << std::endl;
+                      << "/create_magnetlink" << std::endl;
             _static_file_handle("./res/html/create_magnetlink.html", req, res);
         });
 
         _http_server.Get("/magnetlink", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "[request]: "
-                      << "/" << std::endl;
+                      << "/magnetlink" << std::endl;
             _static_file_handle("./res/html/magnetlink.html", req, res);
         });
 
         _http_server.Get("/ip_check", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "[request]: "
-                      << "/" << std::endl;
+                      << "/ip_check" << std::endl;
             _static_file_handle("./res/html/ip_check.html", req, res);
         });
 
         _http_server.Get("/history_ip_info", [](const httplib::Request &req, httplib::Response &res) {
             std::cout << "[request]: "
-                      << "/" << std::endl;
+                      << "/history_ip_info" << std::endl;
             _static_file_handle("./res/html/history_ip_info.html", req, res);
         });
 
@@ -134,7 +133,7 @@ namespace my_server
         // api other
         //
         _http_server.Post("/api/get_info_from_ip", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/api/get_info_from_ip" << std::endl;
+            std::cout << "[request]: /api/get_info_from_ip" << std::endl;
             try
             {
                 if (!handleAuthCheck(req, res))
@@ -157,7 +156,7 @@ namespace my_server
         });
 
         _http_server.Post("/api/history_ip/list", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/api/history_ip/list" << std::endl;
+            std::cout << "[request]: /api/history_ip/list" << std::endl;
             if (!handleAuthCheck(req, res))
             {
                 return;
@@ -205,7 +204,7 @@ namespace my_server
         // api magnetlink
         //
         _http_server.Post("/api/magnetlink/add", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "p:/api/add_magnet_link" << std::endl;
+            std::cout << "[request]: /api/add_magnet_link" << std::endl;
             try
             {
                 if (!handleAuthCheck(req, res))
@@ -228,7 +227,7 @@ namespace my_server
         });
 
         _http_server.Post("/api/torrentfile/add", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "call /api/torrentfile/add" << std::endl;
+            std::cout << "[request]: /api/torrentfile/add" << std::endl;
             try
             {
                 if (!handleAuthCheck(req, res))
@@ -260,7 +259,7 @@ namespace my_server
         });
 
         _http_server.Post("/api/magnetlink/remove", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "call /api/magnetlink/remove" << std::endl;
+            std::cout << "[request]: /api/magnetlink/remove" << std::endl;
             try
             {
                 if (!handleAuthCheck(req, res))
@@ -285,7 +284,7 @@ namespace my_server
         });
 
         _http_server.Post("/api/magnetlink/create", [](const httplib::Request &req, httplib::Response &res) {
-            std::cout << "call /api/magnetlink/create" << std::endl;
+            std::cout << "[request]: /api/magnetlink/create" << std::endl;
             try
             {
                 if (!handleAuthCheck(req, res))
@@ -308,12 +307,14 @@ namespace my_server
         });
 
         _http_server.Post("/api/magnetlink/list", [](const httplib::Request &req, httplib::Response &res) {
-            if (!handleAuthCheck(req, res))
-            {
-                return;
-            }
+            std::cout << "[request]: /api/magnetlink/list" << std::endl;
+
             try
             {
+                if (!handleAuthCheck(req, res))
+                {
+                    return;
+                }
                 std::vector<std::shared_ptr<my_db::TargetInfo>> targetInfos;
 
                 my_db::get_target_info(targetInfos);
