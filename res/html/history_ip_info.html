@@ -24,6 +24,10 @@
             <input id="country_get_history_ip" type="text" value="JP"></inpu><br>
             <label>ip</label>
             <input id="ip_get_history_ip" type="text" value=""></inpu><br>
+            <label>from xx minutes ago to now </label>
+            <input id="minutes_get_history_ip" type="text" value="0"></inpu><br>
+            0 or negative value is unuse this filter
+            <br>
 
             <button id="btn_get_history_ip">Select</button>
         </div>
@@ -46,6 +50,9 @@
             let input_limit = document.getElementById("limit_get_history_ip");
             let input_country = document.getElementById("country_get_history_ip");
             let input_ip = document.getElementById("ip_get_history_ip");
+            let input_minutes = document.getElementById("minutes_get_history_ip");
+
+            
 
             
             function htmlToElem(html) {
@@ -89,7 +96,8 @@
                     "idmin": parseInt(input_idmin.value, 10),
                     "limit": parseInt(input_limit.value, 10),
                     "country": input_country.value,
-                    "ip": input_ip.value
+                    "ip": input_ip.value,
+                    "from_sec_to_now": input_minutes.value * 60
                     }));
             })
         }

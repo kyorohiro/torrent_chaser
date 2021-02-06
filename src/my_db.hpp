@@ -34,7 +34,7 @@ namespace my_db {
     void setup(std::string dbpath, std::string torrent_file_root_path, int the_range_of_time);
     TargetInfo  insert_magnetlink(std::string magnetlink);
     void get_target_info(std::vector<std::shared_ptr<TargetInfo>> &targetInfos);
-    void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country, std::string ip);
+    void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country, std::string ip, int from_sec_to_now);
 
     TargetInfo remove_magnetlink(int id);    
     TargetInfo  save_torrent_file(const char *binary, int size);

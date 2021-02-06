@@ -12,25 +12,31 @@
 #include <regex>
 
 //
-#include<ctime>
-#include<signal.h>
+#include <ctime>
+#include <signal.h>
 //
 //
 //
 
-// 
+//
 // thread
 std::thread server_thread;
 std::thread torrent_thread;
 
-void my_sigint_handler(int s){
-    std::cout << "Caught signal " << s << std::endl;;
-    std::cout << "S Terminate http servdf" << s << std::endl;;
+void my_sigint_handler(int s)
+{
+    std::cout << "Caught signal " << s << std::endl;
+    ;
+    std::cout << "S Terminate http servdf" << s << std::endl;
+    ;
     my_server::terminate();
-    std::cout << "E Terminate http server" << s << std::endl;;
-    std::cout << "S Terminate torrent" << s << std::endl;;
+    std::cout << "E Terminate http server" << s << std::endl;
+    ;
+    std::cout << "S Terminate torrent" << s << std::endl;
+    ;
     my_torrent::terminate();
-    std::cout << "E Terminate torrent" << s << std::endl;;
+    std::cout << "E Terminate torrent" << s << std::endl;
+    ;
 }
 
 void start_http_server_on_thread(int unused)
@@ -38,7 +44,8 @@ void start_http_server_on_thread(int unused)
     my_server::listen(http_server_ip, http_server_port, username, password);
 }
 
-void start_torrent_client_on_thread(int unused) {
+void start_torrent_client_on_thread(int unused)
+{
     my_torrent::listen();
 }
 
@@ -54,39 +61,42 @@ int main(int argc, char *argv[])
 
     //
     // setup torrent
-    my_torrent::setup("", upload_max, download_max);
+    my_torrent::setup(torrent_bind_address, upload_max, download_max);
 
     //
     // load target info(torrent file & magnet link path) from database
     std::vector<std::shared_ptr<my_db::TargetInfo>> target_info_list;
     my_db::get_target_info(target_info_list);
-    
+
     //
-    // set 
-    std::regex re(".*\\.magnetlink");    
-    for(auto l : target_info_list) {
-        if(std::regex_match(l->target,re)){
+    // set
+    std::regex re(".*\\.magnetlink");
+    for (auto l : target_info_list)
+    {
+        if (std::regex_match(l->target, re))
+        {
             //
             {
                 std::fstream input(l->target);
                 std::vector<char> source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-                my_torrent::add_magnetlink(l->unique_id, std::string(source.data(),source.size()));
+                my_torrent::add_magnetlink(l->unique_id, std::string(source.data(), source.size()));
             }
-        } else {
-            my_torrent::add_torrentfile(l->unique_id,l->target);
+        }
+        else
+        {
+            my_torrent::add_torrentfile(l->unique_id, l->target);
         }
     }
-    
 
     // start httpserver
-    server_thread = std::thread (start_http_server_on_thread, 3);//NULL);
+    server_thread = std::thread(start_http_server_on_thread, 3); //NULL);
 
     // start torrent
-    torrent_thread = std::thread (start_torrent_client_on_thread, 3);//NULL);
+    torrent_thread = std::thread(start_torrent_client_on_thread, 3); //NULL);
 
     //
-    // wait 
-    signal (SIGINT, my_sigint_handler);
+    // wait
+    signal(SIGINT, my_sigint_handler);
     server_thread.join();
     torrent_thread.join();
     return 0;

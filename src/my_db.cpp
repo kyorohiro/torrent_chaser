@@ -364,7 +364,7 @@ namespace my_db
         //std::cout << "[DEBUG KY] 1:" << count << std::endl;
         return count > 0;
     }
-    void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country, std::string ip)
+    void get_peer_info(std::vector<std::shared_ptr<FoundIp>> &targetInfos, int idmin, int limit, std::string country, std::string ip, int from_sec_to_now)
     {
         std::cout << idmin << "," << limit << "," << country << std::endl;
         std::stringstream ss;
@@ -374,6 +374,10 @@ namespace my_db
         }
         if(ip.length() != 0) {
             ss << " AND IP = '"<< ip << "' ";
+        }
+        if(from_sec_to_now > 0) {
+            time_t current_unix_time = time(nullptr);
+            ss << " AND UNIXTIME  >= "<< (current_unix_time-from_sec_to_now) << " ";
         }
         ss << " LIMIT " << limit << " ";        
         ss << ";";
