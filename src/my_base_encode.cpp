@@ -78,4 +78,115 @@ namespace my_base_encode
 
         return encode_hex(std::string(hash, 20));
     }
+
+    void to_hexchar(unsigned char c, unsigned char &hex1, unsigned char &hex2)
+    {
+        // ref https://gist.github.com/litefeel/1197e5c24eb9ec93d771
+
+        hex1 = c / 16;
+        hex2 = c % 16;
+        hex1 += hex1 <= 9 ? '0' : 'a' - 10;
+        hex2 += hex2 <= 9 ? '0' : 'a' - 10;
+    }
+
+    void from_hexchar(unsigned char hex1, unsigned char hex2, unsigned char &c)
+    {
+        // ref https://gist.github.com/litefeel/1197e5c24eb9ec93d771
+        c = 0;
+        if ('0' <= hex1 <= '9')
+        {
+            c |= (hex1 - '0') << 4;
+        }
+        else
+        {
+            c |= (hex1 - 'a') << 4;
+        }
+        if ('0' <= hex2 <= '9')
+        {
+            c |= (hex2 - '0');
+        }
+        else
+        {
+            c |= (hex2 - 'a');
+        }
+    }
+
+    std::string encode_url(std::string s, bool handled_space, bool handled_2f)
+    {
+        // ref https://gist.github.com/litefeel/1197e5c24eb9ec93d771
+        std::stringstream ss;
+        const char *str = s.c_str();
+        int size = s.size();
+
+        for (size_t i = 0; i < size; i++)
+        {
+            char c = str[i];
+            if ((c >= '0' && c <= '9') ||
+                (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                c == '-' || c == '_' || c == '.' || c == '!' || c == '~' ||
+                c == '*' || c == '\'' || c == '(' || c == ')')
+            {
+                ss << c;
+            }
+            else if (handled_space == true && c == ' ')
+            {
+                ss << '+';
+            }
+            else if (handled_2f == true && c == '/')
+            {
+                ss << '/';
+            }
+            else
+            {
+                ss << '%';
+                unsigned char d1, d2;
+                to_hexchar(c, d1, d2);
+                ss << d1;
+                ss << d2;
+            }
+        }
+
+        return ss.str();
+    }
+
+    std::string decode_url(std::string s)
+    {
+        std::stringstream ss;
+        const char *str = s.c_str();
+        int size = s.size();
+
+        for (size_t i = 0; i < size; i++)
+        {
+            char c = str[i];
+            if ((c >= '0' && c <= '9') ||
+                (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                c == '-' || c == '_' || c == '.' || c == '!' || c == '~' ||
+                c == '*' || c == '\'' || c == '(' || c == ')')
+            {
+                ss << c;
+            }
+            else if (c == '+')
+            {
+                ss << ' ';
+            }
+            else if (c == '%')
+            {
+                i++;
+                if (!(i + 1 < size))
+                {
+                    break;
+                }
+                const char h1 = i;
+                i++;
+                const char h2 = i;
+                unsigned char out;
+                from_hexchar(h1, h2, out);
+                ss << out;
+            }
+        }
+
+        return ss.str();
+    }
 } // namespace my_base_encode
