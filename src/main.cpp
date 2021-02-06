@@ -24,15 +24,18 @@ std::thread server_thread;
 std::thread torrent_thread;
 
 void my_sigint_handler(int s){
-    printf("Caught signal %d\n",s);
-
+    std::cout << "Caught signal " << s << std::endl;;
+    std::cout << "S Terminate http servdf" << s << std::endl;;
     my_server::terminate();
+    std::cout << "E Terminate http server" << s << std::endl;;
+    std::cout << "S Terminate torrent" << s << std::endl;;
     my_torrent::terminate();
+    std::cout << "E Terminate torrent" << s << std::endl;;
 }
 
 void start_http_server_on_thread(int unused)
 {
-    my_server::listen("0.0.0.0", 8080, username, password);
+    my_server::listen(http_server_ip, http_server_port, username, password);
 }
 
 void start_torrent_client_on_thread(int unused) {
@@ -45,9 +48,9 @@ int main(int argc, char *argv[])
     // load a pair informaton about ip and contry
     my_ip_country_detector::setup_context(setting_ipv4_cvs_path, setting_ipv6_cvs_path);
 
+    //
     // setup table
     my_db::setup(sqlite_db_path, store_folder_path, the_range_of_time);
-
 
     //
     // setup torrent

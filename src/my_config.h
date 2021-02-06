@@ -15,3 +15,7 @@ const int upload_max =-1;
 const int download_max =-1;
 
 const int the_range_of_time = 3*60*60; // Number of searches after the specified number of seconds 
+
+const std::string http_server_ip = "0.0.0.0";
+const int http_server_port = 8080;
+ 
