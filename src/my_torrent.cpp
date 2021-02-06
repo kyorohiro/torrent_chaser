@@ -33,6 +33,8 @@ namespace my_torrent
     std::shared_ptr<lt::session> _session;
     std::map<std::string, lt::torrent_handle> _torrent_handle_map = {};
 
+    //std::map<std::string, int> alreadyConnected = {};
+
     //
     bool _put_ip(std::string key, std::string ip, int port, std::string type, std::string unique_id);
     struct my_torrent_plugin : lt::torrent_plugin
@@ -115,8 +117,9 @@ namespace my_torrent
             ip_info->unique_id = unique_id;
             //
             // save to
-            if(!my_db::alreadtExist(ip, port, type)) {
-                my_db::insert_found_ip(key, ip, port, ip_info->country, ip_info->domain, time(nullptr), "",type, unique_id);
+            if (!my_db::alreadtExist(ip, port, type))
+            {
+                my_db::insert_found_ip(key, ip, port, ip_info->country, ip_info->domain, time(nullptr), "", type, unique_id);
             }
         }
 
@@ -126,7 +129,7 @@ namespace my_torrent
     {
         _session->pause();
         // std::this_thread::yield();
-         _interrupted  = true;
+        _interrupted = true;
     }
 
     //
@@ -230,7 +233,7 @@ namespace my_torrent
 
     void listen()
     {
-        while (_interrupted ==false)
+        while (_interrupted == false)
         {
             std::vector<lt::alert *> alerts;
             _session->pop_alerts(&alerts);
