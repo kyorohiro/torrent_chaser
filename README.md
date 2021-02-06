@@ -1,4 +1,4 @@
-# Torrent Chaset
+# Torrent Chaser
 
 Tiny torrent client with monitoring bittorrent network ip.
 
