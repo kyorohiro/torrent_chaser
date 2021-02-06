@@ -10,6 +10,7 @@
 #include <libtorrent/alert.hpp>
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/error_code.hpp>
+#include <libtorrent/peer_connection_handle.hpp>
 
 //
 //
@@ -37,13 +38,104 @@ namespace my_torrent
 
     //
     bool _put_ip(std::string key, std::string ip, int port, std::string type, std::string unique_id);
+
+    struct my_peer_plugin : lt::peer_plugin
+    {
+        std::string _ip;
+        int _port;
+        std::string _key;
+        std::string _name;
+        bool _haveFlagToDB = false;
+        bool _connectFlagToDB = false;
+        my_peer_plugin(std::string key, std::string name, std::string ip, int port)
+        {
+            _key = key;
+            _ip = ip;
+            _port = port;
+            _name = name;
+            _haveFlagToDB = false;
+            _connectFlagToDB = false;
+        }
+
+        void add_handshake(lt::entry &e) override
+        {
+        }
+
+        void _set_have_to_db()
+        {
+            if (!_haveFlagToDB)
+            {
+                _haveFlagToDB = true;
+                _put_ip(_name, _ip, _port, "have", _key);
+            }
+        }
+        void _set_connected_to_db()
+        {
+            //std::cout << "DEBUG(1)"<<_name<<","<< _ip<<","<< _port<<","<< "C"<<","<< _key <<std::endl;
+            if (!_connectFlagToDB)
+            {
+                //std::cout << "DEBUG(2)"<<_name<<","<< _ip<<","<< _port<<","<< "C"<<","<< _key <<std::endl;
+                _connectFlagToDB = true;
+                _put_ip(_name, _ip, _port, "connected", _key);
+            }
+        }
+        bool on_have(lt::piece_index_t i) override
+        {
+            std::cout << "[plugin] on_have " << _key << ":" << _ip << ":" << _port << " on_have " << i << std::endl;
+            _set_have_to_db();
+            return false;
+        }
+
+        bool on_dont_have(lt::piece_index_t i) override
+        {
+            return false;
+        }
+        bool on_bitfield(lt::bitfield const &bitfield) override
+        {
+            std::cout << "[plugin] on_bitfield " << _key << ":" << _ip << ":" << _port << " on_bitfield " << bitfield.count() << "/" << bitfield.size() << std::endl;
+            if (bitfield.count() > 0)
+            {
+                _set_have_to_db();
+            }
+
+            return false;
+        }
+        bool on_have_all() override
+        {
+            std::cout << "[plugin] on_have_all " << _key << ":" << _ip << ":" << _port << " on_have_all " << std::endl;
+            _set_have_to_db();
+            return false;
+        }
+        bool on_have_none() override
+        {
+            return false;
+        }
+        void on_disconnect(lt::error_code const &e) override
+        {
+        }
+
+        void on_connected() override
+        {
+            std::cout << "[plugin] on_connected " << _key << ":" << _ip << ":" << _port << " on_connect " << std::endl;
+            _set_connected_to_db();
+        }
+    };
+
     struct my_torrent_plugin : lt::torrent_plugin
     {
         std::string _key;
+        std::string _name;
         my_torrent_plugin(std::string key)
         {
             _key = key;
         }
+
+        std::shared_ptr<lt::peer_plugin> new_connection(lt::peer_connection_handle const &pch) override
+        {
+            std::cout << "[plugin][new_connecton]" << pch.remote().address().to_string() << ":" << pch.local_endpoint().port() << std::endl;
+            return std::make_shared<my_peer_plugin>(_key, _name, pch.remote().address().to_string(), pch.local_endpoint().port());
+        }
+
         void on_add_peer(lt::tcp::endpoint const &endpoint, lt::peer_source_flags_t flag1, lt::add_peer_flags_t flag2) override
         {
             std::string type = "other";
@@ -61,8 +153,9 @@ namespace my_torrent
             }
             //
             // found ip
-            std::cout << "[on_add_peer][" << type << "]" << endpoint.address().to_string() << ":" << endpoint.port() << std::endl;
+            std::cout << "[plugin][on_add_peer][" << type << "]" << endpoint.address().to_string() << ":" << endpoint.port() << std::endl;
             auto h = _torrent_handle_map[_key];
+            _name = h.status().name;
 
             _put_ip(h.status().name, endpoint.address().to_string(), endpoint.port(), type, _key);
             //h.name();
