@@ -1,0 +1,41 @@
+$
+
+# install C
+$ apt-get install -y wget gnupg1
+$ apt-get install musl-dev -y
+$ apt-get install build-essential -y
+$ apt-get install cmake -y 
+
+# install boost
+$ apt-get install git -y
+$ apt install libboost-all-dev -y
+$ apt install aptitude -y
+$ aptitude search boost
+
+# libtorrent 
+$ apt-get install ninja-build -y 
+$ git clone https://github.com/arvidn/libtorrent
+$ cd libtorrent
+$ git checkout RC_2_0
+$ git submodule init 
+$ git submodule update
+
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14 -G Ninja ..
+$ ninja -j8
+$ ninja install
+
+# install SQLITE
+
+$ wget https://www.sqlite.org/2021/sqlite-autoconf-3340100.tar.gz
+$ tar xvfz sqlite-autoconf-3071502.tar.gz
+$ cd sqlite-autoconf-3071502
+$ ./configure --prefix=/usr/local
+$ make
+$ make install
+
+
+# build torrent chaser
+
+$ make clean all

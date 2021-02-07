@@ -34,3 +34,9 @@ commit 38738795c02325bcb09ba7749a8be9e9b0496c61 (HEAD -> RC_2_0, origin/RC_2_0, 
 https://github.com/kyorohiro/libtorrent/tree/for_torrenct_chaser_v0_2
 
 ```
+
+
+# How to install your vps
+
+check ./doc/ubuntu20.20.txt
+
