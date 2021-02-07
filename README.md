@@ -27,7 +27,7 @@ https://github.com/arvidn/libtorrent.git
 
 ```
 ## USERD 
-root@118-27-105-203:/app/libtorrent# git log
+$ /app/libtorrent# git log
 commit 38738795c02325bcb09ba7749a8be9e9b0496c61 (HEAD -> RC_2_0, origin/RC_2_0, origin/HEAD)
 
 ## TAGGED
